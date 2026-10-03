@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>課後測驗（特定非公務機關）</title>
+<title>課後測驗（公務機關）</title>
 <meta name="description" content="資安事件通報與應變 教育訓練 課後測驗與結業證書">
 <style>
-@font-face { font-family: 'Huninn'; src: url('assets/fonts/Huninn.ttf') format('truetype'); }
-@font-face { font-family: 'NotoTC900'; src: url('assets/fonts/NotoSansTC-900.ttf') format('truetype'); font-weight: 900; }
+@font-face { font-family: 'Huninn'; src: url('../incident-training-video/assets/fonts/Huninn.ttf') format('truetype'); }
+@font-face { font-family: 'NotoTC900'; src: url('../incident-training-video/assets/fonts/NotoSansTC-900.ttf') format('truetype'); font-weight: 900; }
 :root {
   --bg: #f3f8ff; --card: #ffffff; --ink: #1d2b53; --muted: #5d6475; --line: #e3eaf7; --soft: #f4f7fd;
   --allan: #2f7de1; --arale: #ff5f9e; --orange: #ff9a1f; --green: #1f9d57; --red: #e04646;
@@ -58,9 +58,9 @@ h2 { font-size: 20px; margin-bottom: 10px; }
 <body>
 <main>
   <header>
-    <img src="assets/arale.png" alt="助教 阿拉蕾">
+    <img src="../incident-training-video/assets/arale.png" alt="助教 阿拉蕾">
     <div>
-      <h1>課後測驗｜資安事件通報與應變（特定非公務機關）</h1>
+      <h1>課後測驗｜資安事件通報與應變（公務機關）</h1>
       <div class="sub">共 10 題、每題 10 分，<b>80 分（含）以上</b>通過，可下載結業證書（附題目與解答）。</div>
     </div>
   </header>
@@ -69,7 +69,7 @@ h2 { font-size: 20px; margin-bottom: 10px; }
     <section class="card">
       <h2>受訓人員資料</h2>
       <div class="fields">
-        <label>公司名稱 <span class="req">*</span><input name="company" autocomplete="organization" required></label>
+        <label>機關名稱 <span class="req">*</span><input name="company" autocomplete="organization" required></label>
         <label>單位 <span class="req">*</span><input name="dept" required></label>
         <label>姓名 <span class="req">*</span><input name="name" autocomplete="name" required></label>
         <label>職稱 <span class="req">*</span><input name="title" autocomplete="organization-title" required></label>
@@ -108,44 +108,44 @@ h2 { font-size: 20px; margin-bottom: 10px; }
   </section>
 </main>
 
-<script src="assets/vendor/jspdf.umd.min.js"></script>
+<script src="../incident-training-video/assets/vendor/jspdf.umd.min.js"></script>
 <script>
 'use strict';
-const COURSE = '資安事件通報與應變';
+const COURSE = '資安事件通報與應變（公務機關）';
 const PASS_SCORE = 80;
 
 // 題庫：ans 為正確選項於 opts 中之索引；exp 為解析
 const QUESTIONS = [
-  { q: '特定非公務機關知悉資通安全事件後，應於多久內向中央目的事業主管機關完成通報？',
+  { q: '公務機關知悉資通安全事件後，應於多久內至主管機關指定之系統平臺完成通報？',
     opts: ['30 分鐘內', '1 小時內', '8 小時內', '24 小時內'], ans: 1,
-    exp: '依「資通安全事件通報應變及演練辦法」，應於知悉後一小時內，依中央目的事業主管機關指定之方式完成通報。' },
+    exp: '依「資通安全事件通報應變及演練辦法」，公務機關應於知悉後一小時內，至主管機關指定之系統平臺通報。' },
+  { q: '依資通安全管理法，公務機關知悉資通安全事件時，應向下列何者通報？',
+    opts: ['僅需向機關首長報告', '上級或監督機關及主管機關', '僅需通知委外廠商', '地方警察機關'], ans: 1,
+    exp: '資通安全管理法第 17 條：公務機關知悉資通安全事件時，應向上級或監督機關及主管機關通報，並提出調查、處理及改善報告。' },
   { q: '法定通報時限的起算點「知悉時間」是指？',
-    opts: ['通報窗口接獲通報，或確認監控警示為疑似資安事件的時間', '事件實際發生的時間', '資安主管核定事件等級的時間', '主管機關完成等級審核的時間'], ans: 0,
+    opts: ['通報窗口接獲通報，或確認監控警示為疑似資安事件的時間', '事件實際發生的時間', '資安主管核定事件等級的時間', '受通報機關完成等級審核的時間'], ans: 0,
     exp: '知悉時間是計算法定通報及應變時限的起點，由通報窗口接獲通報或確認警示時起算。' },
   { q: '判定資通安全事件等級時，依據的三個面向是？',
     opts: ['損失金額、影響人數、媒體關注度', '資訊遭洩漏、系統或資訊遭竄改、業務運作受影響或停頓', '發生時間、發生地點、相關人員', '硬體、軟體、網路'], ans: 1,
-    exp: '分別對應機密性、完整性、可用性；同一事件符合多項情形者，從其最高等級。' },
-  { q: '事件等級一時無法判定時，應如何處理？',
-    opts: ['從低認定，避免浪費資源', '等全部查明後再通報', '從高認定，後續依實際影響調整並續報', '由發現人員自行決定'], ans: 2,
-    exp: '無法判定時從高認定，並於後續調查依實際影響變更等級、辦理續報。' },
+    exp: '分別對應機密性、完整性、可用性；同一事件符合多項情形者，從其最高等級；無法判定時從高認定。' },
   { q: '第一級、第二級（一般事件）應於知悉後多久內完成損害控制或復原？',
     opts: ['24 小時', '36 小時', '72 小時', '一週'], ans: 2,
     exp: '一般事件為知悉後 72 小時內；重大事件（第三、四級）為 36 小時內。' },
   { q: '第三級、第四級（重大事件）應於知悉後多久內完成損害控制或復原？',
     opts: ['8 小時', '36 小時', '72 小時', '一個月'], ans: 1,
-    exp: '重大事件須於知悉後 36 小時內完成損害控制或復原，並應立即報告資訊安全長。' },
+    exp: '重大事件須於知悉後 36 小時內完成損害控制或復原，並應立即報告資通安全長。' },
   { q: '資通安全事件的「調查、處理及改善報告」應於何時送交？',
-    opts: ['知悉後 72 小時內', '下次管理審查會議前', '主管機關要求時才需提出', '事件處理完成後一個月內'], ans: 3,
-    exp: '事件處理完成後一個月內送交，內容包括事件經過、根本原因、影響範圍、處理過程、改善措施及完成期程。' },
+    opts: ['知悉後 72 小時內', '年度資安稽核前', '上級機關要求時才需提出', '事件處理完成後一個月內'], ans: 3,
+    exp: '事件處理完成後一個月內送交上級或監督機關及主管機關，內容包括事件經過、根本原因、影響範圍、處理過程、改善措施及完成期程。' },
   { q: '週六深夜，你發現辦公電腦跳出勒索訊息，最正確的做法是？',
-    opts: ['立即關機並重灌系統', '拔除網路線隔離（不關機），並立即通報中控室值班主管', '依勒索訊息付款取回檔案', '等週一上班再向資安單位報告'], ans: 1,
-    exp: '關機可能使記憶體證據消失；應先斷網隔離、保留現場，非上班時間通報中控室值班主管轉知窗口。' },
-  { q: 'OT 工程師站感染惡意程式，但機組運轉未受影響，下列敘述何者正確？',
-    opts: ['屬第一級，由 IT 人員直接關機重灌即可', '機組沒受影響，不需要通報', '屬第三級（重大事件），以機組安全為優先，由儀控會同運轉依原廠指引隔離', '等原廠下次來廠時再處理'], ans: 2,
-    exp: '涉及關鍵基礎設施維運之核心系統受影響即為第三級；OT 隔離、切換或停機須由儀控會同運轉並依原廠指引辦理。' },
-  { q: '依 114 年修正之資通安全管理法，特定非公務機關未依規定通報資通安全事件，可處多少罰鍰？',
-    opts: ['新臺幣 1 萬元以上 10 萬元以下', '新臺幣 10 萬元以上 100 萬元以下', '新臺幣 30 萬元以上 1,000 萬元以下，並得按次處罰', '不罰，僅需書面說明'], ans: 2,
-    exp: '由中央目的事業主管機關處 30 萬元以上 1,000 萬元以下罰鍰，並令限期改正；屆期未改正者按次處罰。' },
+    opts: ['立即關機並重灌系統', '拔除網路線隔離（不關機），並立即撥打資訊單位 24 小時聯絡電話', '依勒索訊息付款取回檔案', '等週一上班再向資訊單位報告'], ans: 1,
+    exp: '關機可能使記憶體證據消失；應先斷網隔離、保留現場，非上班時間撥打資訊單位 24 小時聯絡電話或由值日人員轉知。' },
+  { q: '民眾線上申辦系統遭入侵、大量民眾個資外洩，下列敘述何者正確？',
+    opts: ['屬第一級，資訊人員自行處理即可', '先刪除系統日誌，避免外洩範圍擴大', '屬第三級（重大事件），立即報告資通安全長，並依個資法查明後通知當事人', '等媒體報導後再對外說明'], ans: 2,
+    exp: '核心系統資訊遭嚴重洩漏屬第三級；應保全日誌等證據，並依個人資料保護法查明後以適當方式通知當事人，對外說明由授權窗口統一處理。' },
+  { q: '依 114 年修正之資通安全管理法，公務機關所屬人員未依規定辦理資安事件通報，會有什麼後果？',
+    opts: ['處機關新臺幣 30 萬元以上 1,000 萬元以下罰鍰', '依情節輕重予以懲戒或懲處', '沒有任何責任', '僅需於年底補交書面說明'], ans: 1,
+    exp: '資通安全管理法第 28 條：公務機關所屬人員未依本法規定辦理者，應按其情節輕重，依相關規定予以懲戒或懲處（罰鍰係對特定非公務機關）。' },
 ];
 
 const $ = s => document.querySelector(s);
@@ -153,7 +153,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const LETTERS = 'ABCD';
 const FIELDS = ['company', 'dept', 'name', 'title', 'email'];
-const LABELS = { company: '公司名稱', dept: '單位', name: '姓名', title: '職稱', email: 'e-mail' };
+const LABELS = { company: '機關名稱', dept: '單位', name: '姓名', title: '職稱', email: 'e-mail' };
 
 let order = [];   // 每次測驗：題序與選項順序隨機
 let lastResult = null;
@@ -178,8 +178,8 @@ function info() { const f = $('#quiz'); const o = {}; FIELDS.forEach(k => o[k] =
 const emailOk = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
 // 個人資料草稿（僅存在本機瀏覽器，方便重新測驗時免重填）
-function saveDraft() { try { localStorage.setItem('ir-quiz-info', JSON.stringify(info())); } catch (e) {} }
-function loadDraft() { try { const d = JSON.parse(localStorage.getItem('ir-quiz-info') || '{}'); FIELDS.forEach(k => { if (d[k]) $('#quiz').elements[k].value = d[k]; }); } catch (e) {} }
+function saveDraft() { try { localStorage.setItem('ir-quiz-info-gov', JSON.stringify(info())); } catch (e) {} }
+function loadDraft() { try { const d = JSON.parse(localStorage.getItem('ir-quiz-info-gov') || '{}'); FIELDS.forEach(k => { if (d[k]) $('#quiz').elements[k].value = d[k]; }); } catch (e) {} }
 
 $('#quiz').addEventListener('change', e => { updateProgress(); if (FIELDS.includes(e.target.name)) saveDraft(); });
 $('#quiz').addEventListener('input', e => { if (FIELDS.includes(e.target.name)) e.target.classList.remove('bad'); });
@@ -205,7 +205,7 @@ function certNo(inf, d) {
   let h = 2166136261; const s = inf.name + inf.email + d.getTime();
   for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
   const ymd = d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
-  return `IR-${ymd}-${(h >>> 0).toString(36).toUpperCase().padStart(6, '0').slice(-6)}`;
+  return `IRG-${ymd}-${(h >>> 0).toString(36).toUpperCase().padStart(6, '0').slice(-6)}`;
 }
 
 async function showResult() {
@@ -267,7 +267,7 @@ function mark(ctx, x, y, ok, s = 22) {
 async function drawCertificate(r) {
   const W = 1754, H = 1240; // A4 橫式 150dpi
   const c = document.createElement('canvas'); c.width = W; c.height = H; const ctx = c.getContext('2d');
-  const [arale, allan] = await Promise.all([loadImg('assets/arale.png'), loadImg('assets/allan_half.png')]);
+  const [arale, allan] = await Promise.all([loadImg('../incident-training-video/assets/arale.png'), loadImg('../incident-training-video/assets/allan_half.png')]);
   // 底色與外框
   const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#fffdf6'); g.addColorStop(1, '#f6f9ff');
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);

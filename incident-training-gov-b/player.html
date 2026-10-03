@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>資安事件通報與應變（公務機關）</title>
+<style>
+@font-face { font-family: 'Huninn'; src: url('../incident-training-video/assets/fonts/Huninn.ttf') format('truetype'); }
+@font-face { font-family: 'NotoTC900'; src: url('../incident-training-video/assets/fonts/NotoSansTC-900.ttf') format('truetype'); font-weight: 900; }
+:root {
+  --navy: #1d2b53; --ink: #2b2f3a; --muted: #5d6475;
+  --allan: #2f7de1; --arale: #ff5f9e; --orange: #ff9a1f; --yellow: #ffd23f;
+  --green: #22a45d; --red: #ec4a4a; --card: #ffffff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; background: #10131c; overflow: hidden; }
+body { font-family: 'Huninn', 'Noto Color Emoji', sans-serif; color: var(--ink); }
+.emoji { font-family: 'Noto Color Emoji', sans-serif; }
+#stage { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; overflow: hidden; transform-origin: 0 0;
+  background: linear-gradient(160deg, #dff3ff 0%, #f3f9ff 45%, #fff4df 100%); }
+#bg { position: absolute; inset: 0; }
+.bubble { position: absolute; border-radius: 50%; opacity: .35; }
+#grid { position: absolute; inset: 0; background-image: radial-gradient(#b9d6f2 1.4px, transparent 1.6px); background-size: 28px 28px; opacity: .45; }
+
+/* header */
+#header { position: absolute; left: 28px; top: 18px; right: 28px; height: 58px; display: flex; align-items: center; gap: 14px; }
+#chapter { background: var(--orange); color: #fff; font-size: 20px; padding: 7px 18px; border-radius: 30px; box-shadow: 0 4px 0 #d9780a; white-space: nowrap; }
+#title { font-family: 'NotoTC900', 'Huninn', sans-serif; font-weight: 900; font-size: 32px; color: var(--navy); letter-spacing: 1px; white-space: nowrap; }
+#progress { position: absolute; left: 0; top: 0; height: 6px; background: linear-gradient(90deg, var(--arale), var(--orange), var(--allan)); }
+
+/* content */
+#content { position: absolute; left: 36px; right: 36px; top: 88px; height: 412px; transform: scale(.86); transform-origin: 30% 0; }
+.scene { position: absolute; inset: 0; }
+.card { background: var(--card); border-radius: 18px; box-shadow: 0 6px 0 rgba(29,43,83,.10), 0 10px 24px rgba(29,43,83,.10); border: 3px solid #e8eefb; }
+.it { will-change: transform, opacity; }
+.hl { border-color: var(--orange) !important; box-shadow: 0 0 0 5px rgba(255,154,31,.25), 0 10px 24px rgba(29,43,83,.15) !important; }
+.pre { white-space: pre-line; }
+
+/* characters */
+.host { position: absolute; top: 508px; width: 184px; height: 196px; }
+#arale { left: 22px; }
+.host .frame { position: absolute; left: 0; top: 0; width: 184px; height: 168px; border-radius: 28px; overflow: hidden; background: #fff; border: 6px solid; }
+#arale .frame { border-color: var(--arale); }
+.host .frame img { width: 100%; height: 100%; object-fit: cover; }
+#arale .frame img { object-position: 40% 30%; }
+/* 講師 Allan：半身去背 */
+#allan { position: absolute; right: 12px; top: 430px; width: 206px; height: 290px; transform-origin: 50% 100%; }
+#allan .disc { position: absolute; left: 6px; right: 6px; bottom: 26px; height: 194px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #cfe3ff 0%, #9cc4fb 70%, #7fb0f6 100%); border: 5px solid var(--allan); }
+#allan .ring { left: 0px; top: auto; bottom: 20px; width: 206px; height: 206px; border-radius: 50%; }
+#allan .body { position: absolute; left: 0; right: 0; bottom: 0; width: 206px; height: 297px; object-fit: contain; object-position: 50% 100%;
+  filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(0 6px 10px rgba(29,43,83,.25)); }
+#allan .name { bottom: 2px; z-index: 2; }
+.host .name { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); color: #fff; font-size: 19px; padding: 4px 16px; border-radius: 20px; white-space: nowrap; box-shadow: 0 3px 0 rgba(0,0,0,.15); }
+#arale .name { background: var(--arale); } #allan .name { background: var(--allan); }
+.host .ring { position: absolute; left: -10px; top: -10px; width: 204px; height: 188px; border-radius: 36px; border: 5px dashed; opacity: 0; }
+#arale .ring { border-color: var(--arale); } #allan .ring { border-color: var(--allan); }
+.host .emo { position: absolute; top: -40px; font-size: 52px; opacity: 0; font-family: 'Noto Color Emoji'; }
+#arale .emo { right: -12px; } #allan .emo { left: -30px; top: 30px; }
+.host .waves { position: absolute; top: 40px; font-size: 26px; opacity: 0; }
+#arale .waves { right: -30px; } #allan .waves { left: -26px; top: 120px; }
+
+/* subtitle */
+#sub { position: absolute; left: 228px; right: 228px; top: 548px; height: 134px; display: flex; align-items: center; }
+#subbox { width: 100%; min-height: 96px; background: #fff; border-radius: 22px; border: 4px solid var(--allan); padding: 16px 26px 16px 26px; position: relative; box-shadow: 0 8px 0 rgba(29,43,83,.08); }
+#subname { position: absolute; top: -18px; left: 22px; color: #fff; font-size: 17px; padding: 3px 14px; border-radius: 14px; background: var(--allan); }
+#subtext { font-size: 28px; line-height: 1.4; color: var(--ink); text-align: center; }
+#subtail { position: absolute; top: 40px; width: 0; height: 0; border: 14px solid transparent; }
+
+/* ---- types ---- */
+.cover-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.cover-badge { font-size: 22px; color: #fff; background: var(--navy); padding: 6px 22px; border-radius: 30px; margin-bottom: 18px; }
+.cover-title { font-family: 'NotoTC900'; font-weight: 900; font-size: 76px; color: var(--navy); text-shadow: 4px 4px 0 var(--yellow); letter-spacing: 3px; }
+.cover-title span { display: inline-block; }
+.cover-sub { margin-top: 18px; font-size: 30px; color: var(--muted); }
+.cover-tags { margin-top: 26px; display: flex; gap: 14px; }
+.cover-tags div { background: #fff; border: 3px solid var(--allan); color: var(--allan); font-size: 20px; padding: 6px 16px; border-radius: 26px; }
+.cover-shield { position: absolute; font-size: 110px; font-family: 'Noto Color Emoji'; }
+
+.law-row { position: absolute; left: 0; right: 0; height: 90px; display: flex; align-items: center; padding: 0 22px; gap: 18px; }
+.law-row .ic { font-size: 44px; width: 60px; text-align: center; }
+.law-row .tg { font-size: 18px; color: #fff; padding: 4px 12px; border-radius: 12px; min-width: 64px; text-align: center; }
+.law-row .nm { font-size: 26px; color: var(--navy); width: 430px; line-height: 1.25; }
+.law-row .ds { font-size: 18px; color: var(--muted); line-height: 1.4; flex: 1; }
+
+.fine-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.fine-label { font-size: 28px; color: var(--navy); margin-bottom: 8px; }
+.fine-big { font-family: 'NotoTC900'; font-weight: 900; font-size: 92px; color: var(--red); text-shadow: 5px 5px 0 #ffd6d6; }
+.fine-notes { margin-top: 18px; display: flex; gap: 16px; }
+.fine-notes div { font-size: 22px; padding: 12px 20px; }
+.fine-ref { margin-top: 18px; font-size: 18px; color: var(--muted); }
+
+.cmp-card { position: absolute; top: 0; width: 548px; height: 300px; padding: 22px 26px; }
+.cmp-card .ic { font-size: 54px; }
+.cmp-card .tt { font-size: 30px; color: var(--navy); margin: 6px 0 10px; }
+.cmp-card .ds { font-size: 21px; line-height: 1.5; color: var(--ink); }
+.cmp-card .eg { margin-top: 14px; font-size: 19px; line-height: 1.5; color: var(--muted); background: #f4f7fd; border-radius: 12px; padding: 10px 14px; }
+.vs { position: absolute; left: 560px; top: 110px; width: 88px; height: 88px; border-radius: 50%; background: var(--yellow); color: var(--navy); font-family: 'NotoTC900'; font-weight: 900; font-size: 34px; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 0 #e0ab00; }
+.foot { position: absolute; left: 0; right: 0; bottom: 0; min-height: 76px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px 24px; font-size: 21px; color: var(--navy); background: #fff7d6; border: 3px solid var(--yellow); border-radius: 18px; line-height: 1.45; }
+
+.grid { position: absolute; left: 0; right: 0; top: 0; display: grid; gap: 18px; }
+.gcard { padding: 18px 16px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+.gcard .ic { font-size: 50px; }
+.gcard .tt { font-size: 27px; color: var(--navy); margin: 8px 0 8px; }
+.gcard .ds { font-size: 19px; line-height: 1.5; color: var(--muted); }
+
+.lv-aspects { position: absolute; left: 0; right: 0; top: 0; display: flex; gap: 12px; justify-content: center; }
+.lv-aspects div { font-size: 19px; background: var(--navy); color: #fff; padding: 6px 16px; border-radius: 20px; }
+.lv-row { position: absolute; left: 0; right: 0; height: 72px; display: flex; align-items: center; gap: 14px; padding: 0 14px 0 0; overflow: hidden; }
+.lv-tag { width: 128px; height: 100%; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 14px 0 0 14px; }
+.lv-tag b { font-size: 25px; font-weight: normal; } .lv-tag i { font-style: normal; font-size: 15px; opacity: .95; }
+.lv-ds { flex: 1; font-size: 17px; line-height: 1.38; color: var(--ink); }
+.lv-eg { width: 380px; font-size: 17px; line-height: 1.38; color: var(--muted); background: #f4f7fd; border-radius: 10px; padding: 6px 10px; }
+.lv-notes { position: absolute; left: 0; right: 0; bottom: 0; display: flex; gap: 14px; justify-content: center; }
+.lv-notes div { font-size: 19px; padding: 8px 16px; background: #fff7d6; border: 3px solid var(--yellow); border-radius: 14px; color: var(--navy); }
+
+.tl-line { position: absolute; left: 90px; right: 90px; top: 128px; height: 10px; border-radius: 6px; background: #d5e0f2; }
+.tl-fill { position: absolute; left: 90px; top: 128px; height: 10px; border-radius: 6px; background: linear-gradient(90deg, var(--orange), var(--red)); }
+.tl-node { position: absolute; top: 40px; width: 190px; margin-left: -95px; text-align: center; }
+.tl-node .ci { width: 104px; height: 104px; margin: 0 auto; border-radius: 50%; background: #fff; border: 6px solid var(--allan); display: flex; align-items: center; justify-content: center; font-size: 50px; box-shadow: 0 6px 0 rgba(29,43,83,.12); }
+.tl-node .tm { margin-top: 14px; font-family: 'NotoTC900'; font-weight: 900; font-size: 30px; color: var(--red); white-space: nowrap; }
+.tl-node .sb { font-size: 17px; color: var(--muted); }
+.tl-node .lb { margin-top: 10px; font-size: 21px; color: var(--navy); line-height: 1.35; background: #fff; border-radius: 14px; padding: 10px 6px; border: 3px solid #e8eefb; }
+
+.flow-card { position: absolute; width: 590px; height: 120px; display: flex; align-items: center; gap: 16px; padding: 0 20px; }
+.flow-card .no { position: absolute; left: -12px; top: -12px; width: 36px; height: 36px; border-radius: 50%; background: var(--orange); color: #fff; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+.flow-card .ic { font-size: 48px; width: 60px; text-align: center; }
+.flow-card .rl { font-size: 25px; color: var(--navy); }
+.flow-card .ac { font-size: 18px; color: var(--muted); line-height: 1.4; margin-top: 4px; }
+
+.case-left { position: absolute; left: 0; top: 0; width: 330px; height: 412px; padding: 22px; display: flex; flex-direction: column; align-items: center; }
+.case-scene { white-space: nowrap; font-size: 18px; color: #fff; background: var(--navy); padding: 6px 14px; border-radius: 16px; }
+.case-clock { margin-top: 22px; width: 280px; height: 120px; border-radius: 20px; background: #1b2236; color: #6dffb0; font-family: 'NotoTC900'; font-weight: 900; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: inset 0 0 0 4px #33405e; }
+.case-clock .d { font-size: 20px; color: #9fb3d9; font-family: 'Huninn'; }
+.case-clock .h { font-size: 46px; letter-spacing: 2px; }
+.case-level { margin-top: 26px; width: 210px; height: 120px; border-radius: 20px; border: 7px solid; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: rotate(-8deg); background: #fff; }
+.case-level b { font-family: 'NotoTC900'; font-weight: 900; font-size: 40px; } .case-level i { font-style: normal; font-size: 22px; }
+.case-right { position: absolute; left: 350px; right: 0; top: 0; height: 412px; overflow: hidden; }
+.case-log { position: absolute; left: 0; right: 0; top: 0; }
+.case-item { position: absolute; left: 0; right: 6px; height: 74px; display: flex; align-items: center; gap: 14px; padding: 0 16px; }
+.case-item .tm { width: 150px; font-size: 20px; color: var(--allan); white-space: nowrap; }
+.case-item .ic { font-size: 34px; width: 44px; text-align: center; }
+.case-item .tx { flex: 1; font-size: 20px; color: var(--ink); line-height: 1.35; }
+
+.dd-col { position: absolute; top: 0; width: 588px; height: 412px; padding: 16px 18px; }
+.dd-col h3 { font-weight: normal; font-size: 28px; text-align: center; margin-bottom: 10px; color: #fff; border-radius: 14px; padding: 6px; }
+.dd-item { position: absolute; left: 18px; right: 18px; height: 60px; display: flex; align-items: center; gap: 12px; font-size: 20px; line-height: 1.3; padding: 0 12px; border-radius: 12px; background: #f6f8fc; }
+.dd-item .mk { font-size: 28px; }
+
+.quiz-q { position: absolute; left: 40px; right: 40px; top: 0; height: 120px; display: flex; align-items: center; gap: 18px; padding: 0 28px; }
+.quiz-q .qn { font-family: 'NotoTC900'; font-weight: 900; font-size: 54px; color: var(--orange); }
+.quiz-q .qt { font-size: 30px; color: var(--navy); line-height: 1.35; }
+.quiz-opt { position: absolute; width: 572px; height: 112px; display: flex; align-items: center; gap: 16px; padding: 0 84px 0 22px; }
+.quiz-opt .ab { width: 56px; height: 56px; border-radius: 50%; background: var(--allan); color: #fff; font-size: 30px; display: flex; align-items: center; justify-content: center; flex: none; }
+.quiz-opt .ot { font-size: 23px; line-height: 1.3; color: var(--ink); }
+.quiz-opt .mk { position: absolute; right: 18px; font-size: 54px; font-family: 'Noto Color Emoji'; opacity: 0; }
+.quiz-opt.ok { border-color: var(--green) !important; background: #eafff2; }
+.quiz-opt.ok .ab { background: var(--green); }
+
+.sum-card { position: absolute; height: 180px; padding: 14px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.sum-card .n { width: 54px; height: 54px; border-radius: 50%; color: #fff; font-family: 'NotoTC900'; font-weight: 900; font-size: 30px; display: flex; align-items: center; justify-content: center; }
+.sum-card .tt { font-size: 28px; color: var(--navy); margin: 10px 0 6px; font-family: 'NotoTC900'; font-weight: 900; }
+.sum-card .ds { font-size: 17px; color: var(--muted); line-height: 1.4; }
+
+.end-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.end-title { font-family: 'NotoTC900'; font-weight: 900; font-size: 64px; color: var(--navy); text-shadow: 4px 4px 0 var(--yellow); }
+.end-sub { margin-top: 18px; font-size: 32px; color: var(--arale); }
+.end-thx { margin-top: 30px; font-size: 26px; color: #fff; background: var(--allan); padding: 8px 30px; border-radius: 30px; }
+
+/* interactive controls */
+#ui { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 10px; align-items: center; padding: 10px 14px; background: rgba(16,19,28,.85); color: #fff; font: 14px sans-serif; z-index: 10; }
+#ui button { font-size: 15px; padding: 6px 14px; border-radius: 8px; border: 0; background: var(--orange); color: #fff; cursor: pointer; }
+#ui input { flex: 1; }
+body.render #ui { display: none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"><div id="grid"></div></div>
+  <div id="progress"></div>
+  <div id="header"><div id="chapter"></div><div id="title"></div></div>
+  <div id="content"></div>
+  <div id="sub"><div id="subbox"><div id="subname"></div><div id="subtext"></div></div></div>
+  <div class="host" id="arale"><div class="ring"></div><div class="frame"><img src="../incident-training-video/assets/arale.png" alt=""></div><div class="name">助教 阿拉蕾</div><div class="emo"></div><div class="waves emoji">💬</div></div>
+  <div class="host" id="allan"><div class="disc"></div><div class="ring"></div><img class="body" src="../incident-training-video/assets/allan_half.png" alt=""><div class="name">講師 Allan</div><div class="emo"></div><div class="waves emoji">💬</div></div>
+</div>
+<div id="ui"><button id="play">▶ 播放</button><input id="seek" type="range" min="0" max="1000" value="0"><span id="clock">0:00</span></div>
+<audio id="audio" src="build/narration.m4a" preload="auto"></audio>
+<script src="scenes.js"></script>
+<script>
+'use strict';
+let TL = null;
+const $ = (s, r = document) => r.querySelector(s);
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const easeOutBack = x => { const c1 = 1.70158, c3 = c1 + 1; x = clamp(x); return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const easeOut = x => 1 - Math.pow(1 - clamp(x), 3);
+const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const em = s => esc(s).replace(/(\p{Extended_Pictographic}(️|‍\p{Extended_Pictographic})*)/gu, '<span class="emoji">$1</span>');
+
+// ---------- background bubbles ----------
+const BUB = [];
+(function initBg() {
+  const colors = ['#ffd23f', '#ff9fc6', '#8cc8ff', '#a6f0c6', '#ffc58a'];
+  for (let i = 0; i < 14; i++) {
+    const d = document.createElement('div'); d.className = 'bubble';
+    const size = 40 + (i * 37) % 120; d.style.width = d.style.height = size + 'px';
+    d.style.background = colors[i % colors.length];
+    $('#bg').appendChild(d);
+    BUB.push({ el: d, x: (i * 97) % 1280, y: (i * 151) % 720, sp: 6 + (i % 5) * 3, ph: i });
+  }
+})();
+function renderBg(t) {
+  for (const b of BUB) {
+    const y = ((b.y - t * b.sp) % 820 + 820) % 820 - 100;
+    const x = b.x + Math.sin(t * 0.3 + b.ph) * 30;
+    b.el.style.transform = `translate(${x}px,${y}px)`;
+  }
+}
+
+// ---------- subtitle chunking ----------
+function chunks(text) {
+  const parts = text.match(/[^，。！？；：、,!?;]+[，。！？；：、,!?;]*/g) || [text];
+  const out = []; let cur = '';
+  for (const p of parts) {
+    if ((cur + p).length > 25 && cur) { out.push(cur); cur = p; } else cur += p;
+  }
+  if (cur) out.push(cur);
+  // 合併過短的尾段
+  if (out.length > 1 && out[out.length - 1].length < 6 && out[out.length - 2].length + out[out.length - 1].length <= 27) { const l = out.pop(); out[out.length - 1] += l; }
+  return out;
+}
+
+// ---------- scene builders ----------
+// 每個 builder 回傳 { el, items: [element...], update(lt, ctx) }
+const B = {};
+function mk(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+
+B.cover = (sc) => {
+  const el = mk('div', 'scene');
+  const w = mk('div', 'cover-wrap');
+  w.appendChild(mk('div', 'cover-badge', '資安教育訓練'));
+  const title = mk('div', 'cover-title', [...sc.data.title].map(c => `<span>${esc(c)}</span>`).join(''));
+  w.appendChild(title);
+  w.appendChild(mk('div', 'cover-sub', esc(sc.data.sub)));
+  const tags = mk('div', 'cover-tags', sc.data.tags.map(t => `<div>${esc(t)}</div>`).join(''));
+  w.appendChild(tags);
+  el.appendChild(w);
+  const sh1 = mk('div', 'cover-shield', '🛡️'); sh1.style.left = '40px'; sh1.style.top = '20px';
+  const sh2 = mk('div', 'cover-shield', '🚨'); sh2.style.right = '40px'; sh2.style.top = '40px';
+  el.append(sh1, sh2);
+  const spans = [...title.children];
+  return { el, items: [], update(lt) {
+    spans.forEach((s, i) => { const p = easeOutBack((lt - 0.3 - i * 0.07) / 0.5); s.style.transform = `translateY(${(1 - p) * -60}px) scale(${0.3 + 0.7 * p})`; s.style.opacity = clamp(p * 2); });
+    const p2 = easeOut((lt - 1.4) / 0.6);
+    tags.style.opacity = p2; tags.style.transform = `translateY(${(1 - p2) * 20}px)`;
+    sh1.style.transform = `rotate(${Math.sin(lt * 1.5) * 10}deg) translateY(${Math.sin(lt * 2) * 8}px)`;
+    sh2.style.transform = `rotate(${Math.sin(lt * 1.7 + 1) * 12}deg) translateY(${Math.cos(lt * 2) * 8}px)`;
+  } };
+};
+
+B.law = (sc) => {
+  const el = mk('div', 'scene'); const items = [];
+  const colors = ['#1d2b53', '#2f7de1', '#ff9a1f', '#22a45d'];
+  sc.data.items.forEach((it, i) => {
+    const r = mk('div', 'law-row card it', `<div class="ic emoji">${it.icon}</div><div class="tg" style="background:${colors[i]}">${esc(it.tag)}</div><div class="nm">${esc(it.name)}</div><div class="ds pre">${esc(it.desc)}</div>`);
+    r.style.top = (i * 104) + 'px'; r.style.left = (i * 18) + 'px'; r.style.right = ((3 - i) * 18) + 'px';
+    el.appendChild(r); items.push(r);
+  });
+  return { el, items };
+};
+
+B.fine = (sc) => {
+  const el = mk('div', 'scene'); const items = [];
+  const w = mk('div', 'fine-wrap');
+  w.appendChild(mk('div', 'fine-label', esc(sc.data.label)));
+  const big = mk('div', 'fine-big', esc(sc.data.big)); w.appendChild(big);
+  const notes = mk('div', 'fine-notes');
+  sc.data.notes.forEach(n => { const d = mk('div', 'card it', esc(n)); notes.appendChild(d); items.push(d); });
+  w.appendChild(notes);
+  w.appendChild(mk('div', 'fine-ref', esc(sc.data.ref)));
+  el.appendChild(w);
+  return { el, items, update(lt, ctx) {
+    const p = easeOutBack((lt - 0.6) / 0.6);
+    // 阿拉蕾驚呼時抖動
+    const shake = ctx.lineIdx === 2 ? Math.sin(lt * 50) * 4 : 0;
+    big.style.transform = `scale(${0.2 + 0.8 * p + Math.sin(lt * 3) * 0.02}) translateX(${shake}px)`;
+    big.style.opacity = clamp(p * 2);
+  } };
+};
+
+B.compare = (sc) => {
+  const el = mk('div', 'scene'); const items = [];
+  const side = (d, left) => {
+    const c = mk('div', 'cmp-card card it', `<div class="ic emoji">${d.icon}</div><div class="tt">${esc(d.title)}</div><div class="ds pre">${esc(d.desc)}</div><div class="eg pre">${esc(d.eg)}</div>`);
+    c.style[left ? 'left' : 'right'] = '0px';
+    el.appendChild(c); items.push(c);
+  };
+  side(sc.data.left, true); side(sc.data.right, false);
+  const vs = mk('div', 'vs', 'VS'); el.appendChild(vs);
+  if (sc.data.foot) { const f = mk('div', 'foot it', em(sc.data.foot)); el.appendChild(f); items.push(f); }
+  return { el, items, update(lt) { vs.style.transform = `rotate(${Math.sin(lt * 2) * 8}deg) scale(${1 + Math.sin(lt * 4) * 0.04})`; } };
+};
+
+B.cards = (sc) => {
+  const el = mk('div', 'scene'); const items = [];
+  const cols = sc.data.cols || 3; const rows = Math.ceil(sc.data.items.length / cols);
+  const g = mk('div', 'grid'); g.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  const footH = sc.data.foot ? 92 : 0;
+  const h = (412 - footH - (rows - 1) * 18) / rows;
+  sc.data.items.forEach(it => {
+    const c = mk('div', 'gcard card it', `<div class="ic emoji">${it.icon}</div><div class="tt">${esc(it.title)}</div><div class="ds pre">${esc(it.desc)}</div>`);
+    c.style.height = h + 'px'; c.style.justifyContent = 'center';
+    if (rows === 1) { c.querySelector('.ic').style.fontSize = '72px'; c.querySelector('.tt').style.fontSize = '32px'; c.querySelector('.tt').style.margin = '16px 0 14px'; c.querySelector('.ds').style.fontSize = '22px'; }
+    if (rows > 1) { c.style.padding = '10px 12px'; c.querySelector('.ic').style.fontSize = '40px'; c.querySelector('.tt').style.margin = '4px 0'; }
+    g.appendChild(c); items.push(c);
+  });
+  el.appendChild(g);
+  if (sc.data.foot) { const f = mk('div', 'foot it', em(sc.data.foot)); el.appendChild(f); items.push(f); }
+  return { el, items };
+};
+
+B.levels = (sc) => {
+  const el = mk('div', 'scene'); const items = [];
+  el.appendChild(mk('div', 'lv-aspects', sc.data.aspects.map(a => `<div>${em(a)}</div>`).join('')));
+  sc.data.items.forEach((it, i) => {
+    const r = mk('div', 'lv-row card it', `<div class="lv-tag" style="background:${it.color}"><b>${esc(it.lv)}</b><i>${esc(it.name)}</i></div><div class="lv-ds">${esc(it.desc)}</div><div class="lv-eg">例：${esc(it.eg)}</div>`);
+    r.style.top = (46 + i * 80) + 'px'; r.style.borderColor = it.color + '55';
+    el.appendChild(r); items.push(r);
+  });
+  const notes = mk('div', 'lv-notes'); notes.style.bottom = '-6px';
+  sc.data.notes.forEach(n => { const d = mk('div', 'it', esc(n)); notes.appendChild(d); items.push(d); });
+  el.appendChild(notes);
+  return { el, items };
+};
+
+B.timeline = (sc) => {
+  const el = mk('div', 'scene'); const items = [];
+  el.appendChild(mk('div', 'tl-line'));
+  const fill = mk('div', 'tl-fill'); el.appendChild(fill);
+  const n = sc.data.items.length; const span = 1208 - 180;
+  sc.data.items.forEach((it, i) => {
+    const node = mk('div', 'tl-node it', `<div class="ci emoji">${it.icon}</div><div class="tm">${esc(it.t)}</div><div class="sb">${esc(it.sub)}</div><div class="lb pre">${esc(it.label)}</div>`);
+    node.style.left = (90 + span * i / (n - 1)) + 'px';
+    el.appendChild(node); items.push(node);
+  });
+  return { el, items, update(lt, ctx) {
+    const shown = ctx.revealedFrac; // 0..n
+    const frac = clamp((shown - 1) / (n - 1));
+    fill.style.width = (span * frac) + 'px';
+  } };
+};
+
+B.flow = (sc) => {
+  const el = mk('div', 'scene'); const items = [];
+  sc.data.items.forEach((it, i) => {
+    const col = i < 3 ? 0 : 1, row = i % 3;
+    const c = mk('div', 'flow-card card it', `<div class="no">${i + 1}</div><div class="ic emoji">${it.icon}</div><div><div class="rl">${esc(it.role)}</div><div class="ac">${esc(it.act)}</div></div>`);
+    c.style.left = (col * 618) + 'px'; c.style.top = (row * 140 + 6) + 'px';
+    el.appendChild(c); items.push(c);
+  });
+  return { el, items };
+};
+
+B.case = (sc) => {
+  const el = mk('div', 'scene'); const items = [];
+  const L = mk('div', 'case-left card');
+  L.appendChild(mk('div', 'case-scene', em(sc.data.scene)));
+  const clock = mk('div', 'case-clock', '<div class="d"></div><div class="h"></div>'); L.appendChild(clock);
+  const lv = sc.data.level;
+  const badge = mk('div', 'case-level', `<b style="color:${lv.color}">${esc(lv.lv)}</b><i style="color:${lv.color}">${esc(lv.name)}</i>`);
+  badge.style.borderColor = lv.color; L.appendChild(badge);
+  el.appendChild(L);
+  const R = mk('div', 'case-right'); const log = mk('div', 'case-log'); R.appendChild(log); el.appendChild(R);
+  const IH = 82;
+  sc.data.items.forEach((it, i) => {
+    const c = mk('div', 'case-item card it', `<div class="tm">${esc(it.time)}</div><div class="ic emoji">${it.icon}</div><div class="tx">${esc(it.text)}</div>`);
+    c.style.top = (i * IH + 4) + 'px'; log.appendChild(c); items.push(c);
+  });
+  const badgeLine = sc.lines.find(l => l.badge);
+  return { el, items, update(lt, ctx) {
+    const k = Math.max(0, Math.min(sc.data.items.length, Math.ceil(ctx.revealedFrac)));
+    const cur = sc.data.items[Math.max(0, k - 1)];
+    const m = cur.time.match(/^(\S*?)\s*(\d{1,2}:\d{2})?\s*(前)?$/) || [];
+    let dayName = '';
+    for (let j = 0; j < Math.max(1, k); j++) { const mm = sc.data.items[j].time.match(/^(\S*?)\s*(\d{1,2}:\d{2})?\s*(前)?$/); if (mm && mm[1]) dayName = mm[1]; }
+    clock.children[0].textContent = m[2] ? dayName + (m[3] ? '（期限）' : '') : '';
+    clock.children[1].textContent = m[2] ? m[2] : cur.time;
+    clock.children[1].style.fontSize = m[2] ? '46px' : (cur.time.length > 4 ? '30px' : '40px');
+    // 捲動：最新項目保持可見
+    const maxVis = 5;
+    const target = Math.max(0, ctx.revealedFrac - maxVis) * IH;
+    log.style.transform = `translateY(${-target}px)`;
+    // 等級印章
+    const bt = badgeLine ? lt - (badgeLine.start - ctx.sc.start) : -1;
+    const p = bt < 0 ? 0 : easeOutBack(bt / 0.45);
+    badge.style.opacity = bt < 0 ? 0 : clamp(bt / 0.15);
+    badge.style.transform = `rotate(-8deg) scale(${bt < 0 ? 2 : 2 - p})`;
+  } };
+};
+
+B.dodont = (sc) => {
+  const el = mk('div', 'scene'); const items = [];
+  const col = (title, list, left, color, mark) => {
+    const c = mk('div', 'dd-col card'); c.style[left ? 'left' : 'right'] = '0'; c.style.borderColor = color + '66';
+    c.appendChild(mk('h3', '', title)).style.background = color;
+    list.forEach((t, i) => {
+      const d = mk('div', 'dd-item it', `<span class="mk emoji">${mark}</span><span>${esc(t)}</span>`);
+      d.style.top = (70 + i * 66) + 'px'; c.appendChild(d); items.push(d);
+    });
+    el.appendChild(c);
+  };
+  col('要做 DO', sc.data.do, true, '#22a45d', '✅');
+  col('不要做 DON\'T', sc.data.dont, false, '#ec4a4a', '❌');
+  return { el, items };
+};
+
+B.quiz = (sc) => {
+  const el = mk('div', 'scene'); const items = [];
+  const q = mk('div', 'quiz-q card', `<div class="qn">Q</div><div class="qt">${esc(sc.data.q)}</div>`); el.appendChild(q);
+  const opts = sc.data.opts.map((o, i) => {
+    const c = mk('div', 'quiz-opt card it', `<div class="ab">${'ABCD'[i]}</div><div class="ot">${esc(o)}</div><div class="mk">${i === sc.data.ans ? '⭕' : '❌'}</div>`);
+    c.style.left = (i % 2 ? 636 : 0) + 'px'; c.style.top = (148 + Math.floor(i / 2) * 132) + 'px';
+    el.appendChild(c); items.push(c); return c;
+  });
+  const rl = sc.lines.find(l => l.reveal);
+  return { el, items, update(lt, ctx) {
+    const rt = rl ? lt - (rl.start - ctx.sc.start) : -1;
+    opts.forEach((c, i) => {
+      const ok = i === sc.data.ans;
+      c.classList.toggle('ok', rt >= 0 && ok);
+      const mkEl = c.querySelector('.mk');
+      if (rt >= 0) {
+        const p = easeOutBack(rt / 0.4);
+        mkEl.style.opacity = ok ? 1 : 0.85; mkEl.style.transform = `scale(${p})`;
+        c.style.opacity = ok ? 1 : 0.45 + 0.55 * clamp(1 - rt / 0.4);
+        if (ok) c.style.transform = `scale(${1 + 0.04 * Math.sin(rt * 6)})`;
+      } else { mkEl.style.opacity = 0; }
+    });
+  } };
+};
+
+B.summary = (sc) => {
+  const el = mk('div', 'scene'); const items = [];
+  const colors = ['#ff5f9e', '#ff9a1f', '#ec4a4a', '#2f7de1', '#22a45d', '#8a5cf6', '#1d2b53'];
+  sc.data.items.forEach((it, i) => {
+    const row = i < 4 ? 0 : 1; const idx = row ? i - 4 : i; const n = row ? 3 : 4;
+    const w = row ? 380 : 285; const gap = 18; const tot = n * w + (n - 1) * gap; const x0 = (1208 - tot) / 2;
+    const c = mk('div', 'sum-card card it', `<div class="n" style="background:${colors[i]}">${it.n}</div><div class="tt">${esc(it.title)}</div><div class="ds">${esc(it.desc)}</div>`);
+    c.style.width = w + 'px'; c.style.left = (x0 + idx * (w + gap)) + 'px'; c.style.top = (row * 206 + 8) + 'px';
+    el.appendChild(c); items.push(c);
+  });
+  return { el, items };
+};
+
+B.ending = (sc) => {
+  const el = mk('div', 'scene');
+  const w = mk('div', 'end-wrap', `<div class="end-title">${esc(sc.data.title)}</div><div class="end-sub">${esc(sc.data.sub)}</div><div class="end-thx">謝謝收看</div>`);
+  el.appendChild(w);
+  const stars = [];
+  for (let i = 0; i < 10; i++) { const s = mk('div', 'cover-shield', ['⭐', '✨', '🛡️', '💖'][i % 4]); s.style.fontSize = '44px'; s.style.left = (60 + i * 118) + 'px'; s.style.top = (i % 2 ? 330 : 10) + 'px'; el.appendChild(s); stars.push(s); }
+  return { el, items: [], update(lt) {
+    const p = easeOutBack((lt - 0.3) / 0.6);
+    w.style.transform = `scale(${0.4 + 0.6 * p})`; w.style.opacity = clamp(p * 2);
+    stars.forEach((s, i) => { s.style.transform = `translateY(${Math.sin(lt * 2 + i) * 12}px) rotate(${Math.sin(lt + i) * 15}deg)`; s.style.opacity = clamp((lt - 0.5 - i * 0.08) / 0.3); });
+  } };
+};
+
+// ---------- timeline / state ----------
+const BUILT = new Map();
+function getScene(i) {
+  if (BUILT.has(i)) return BUILT.get(i);
+  const sc = TL.scenes[i];
+  const b = (B[sc.type] || B.cards)(sc);
+  b.sc = sc;
+  // 計算每個元素出現時間
+  const n = b.items.length;
+  const hasShow = sc.lines.some(l => l.show != null);
+  b.revealAt = new Array(n).fill(null);
+  if (hasShow) {
+    for (const l of sc.lines) {
+      if (l.show == null) continue;
+      for (let k = 0; k < Math.min(l.show, n); k++) if (b.revealAt[k] == null) b.revealAt[k] = l.start - sc.start + (k - (b.revealAt.filter(x => x != null).length)) * 0;
+    }
+    // 同一句一次顯示多個 → 小幅錯開
+    const seen = {};
+    b.revealAt = b.revealAt.map(v => { if (v == null) return null; const key = v.toFixed(3); seen[key] = (seen[key] || 0) + 1; return v + (seen[key] - 1) * 0.18; });
+  } else {
+    b.revealAt = b.revealAt.map((_, k) => 0.6 + k * 0.15);
+  }
+  // 從未被 show 觸及者（例如 cards 的 foot）於最後才出現 → 視為隱藏直到結束；保險起見設定為不顯示
+  b.el.style.display = 'none';
+  $('#content').appendChild(b.el);
+  BUILT.set(i, b);
+  return b;
+}
+function findScene(t) {
+  const S = TL.scenes;
+  for (let i = 0; i < S.length; i++) if (t < S[i].end || i === S.length - 1) return i;
+  return S.length - 1;
+}
+let currentIdx = -1;
+
+const HOSTS = { A: $('#allan'), R: $('#arale') };
+function renderHosts(t, line, lineStart) {
+  for (const who of ['A', 'R']) {
+    const h = HOSTS[who];
+    const talking = line && line.s === who;
+    const breathe = Math.sin(t * 2 + (who === 'A' ? 0 : 1.5)) * 2;
+    if (talking) {
+      const lt = t - lineStart;
+      const bob = -Math.abs(Math.sin(lt * (who === 'R' ? 11 : 8))) * (who === 'R' ? 9 : 6);
+      const rot = Math.sin(lt * (who === 'R' ? 5 : 3)) * (who === 'R' ? 4 : 2);
+      h.style.transform = `translateY(${bob}px) rotate(${rot}deg) scale(1.06)`;
+      h.style.filter = 'none';
+      h.querySelector('.ring').style.opacity = 0.6 + 0.4 * Math.sin(lt * 6);
+      h.querySelector('.ring').style.transform = `rotate(${lt * 8}deg)`;
+      const w = h.querySelector('.waves'); w.style.opacity = 0.5 + 0.5 * Math.sin(lt * 7); w.style.transform = `scale(${1 + 0.15 * Math.sin(lt * 7)})`;
+    } else {
+      h.style.transform = `translateY(${breathe}px) scale(0.94)`;
+      h.style.filter = 'saturate(.6) brightness(.97)';
+      h.querySelector('.ring').style.opacity = 0;
+      h.querySelector('.waves').style.opacity = 0;
+    }
+  }
+}
+
+function renderAt(t) {
+  if (!TL) return;
+  t = clamp(t, 0, TL.duration);
+  renderBg(t);
+  $('#progress').style.width = (1280 * t / TL.duration) + 'px';
+  const i = findScene(t);
+  const sc = TL.scenes[i];
+  const b = getScene(i);
+  if (currentIdx !== i) {
+    if (currentIdx >= 0) BUILT.get(currentIdx).el.style.display = 'none';
+    b.el.style.display = '';
+    $('#chapter').textContent = sc.chapter || '資安教育訓練';
+    $('#title').textContent = sc.title;
+    currentIdx = i;
+  }
+  const lt = t - sc.start;
+  // 轉場
+  const pin = easeOut(lt / 0.55), pout = clamp((sc.end - t) / 0.35);
+  b.el.style.opacity = Math.min(pin, pout);
+  b.el.style.transform = `translateY(${(1 - pin) * 30}px) scale(${0.97 + 0.03 * pin})`;
+  const hp = easeOutBack(lt / 0.5);
+  $('#header').style.transform = `translateX(${(1 - hp) * -60}px)`; $('#header').style.opacity = clamp(lt / 0.3) * pout + (1 - pout) * 0.0;
+  const hideHeader = sc.type === 'cover' || sc.type === 'ending';
+  $('#header').style.visibility = hideHeader ? 'hidden' : 'visible';
+
+  // 目前台詞
+  let line = null, lineIdx = -1;
+  sc.lines.forEach((l, k) => { if (t >= l.start - 0.05 && t <= l.end + 0.25) { line = l; lineIdx = k; } });
+  let lastLine = null; sc.lines.forEach(l => { if (t >= l.start) lastLine = l; });
+
+  // 元素出現
+  let revealedFrac = 0;
+  b.items.forEach((el, k) => {
+    const ra = b.revealAt[k];
+    if (ra == null) { el.style.opacity = 0; el.style.transform = 'scale(.6)'; el.classList.remove('hl'); return; }
+    const p = (lt - ra) / 0.45;
+    const e = easeOutBack(p);
+    el.style.opacity = clamp(p * 2.5);
+    el.style.transform = p <= 0 ? 'translateY(26px) scale(.7)' : `translateY(${(1 - e) * 26}px) scale(${0.7 + 0.3 * e})`;
+    if (p > 0) revealedFrac = Math.max(revealedFrac, k + clamp(p));
+    const hl = line && line.hl === k;
+    el.classList.toggle('hl', !!hl);
+    if (hl && p >= 1) el.style.transform = `scale(${1.02 + 0.01 * Math.sin(lt * 5)})`;
+  });
+  if (b.update) b.update(lt, { lineIdx, line, sc, revealedFrac });
+
+  // 字幕
+  const sub = $('#sub'), box = $('#subbox');
+  const showLine = line || (lastLine && t - lastLine.end < 0.6 ? lastLine : null);
+  if (showLine) {
+    const who = showLine.s;
+    const ch = chunks(showLine.t);
+    const total = ch.reduce((a, c) => a + c.length, 0);
+    const prog = clamp((t - showLine.start) / (showLine.end - showLine.start)) * total;
+    let acc = 0, idx = ch.length - 1;
+    for (let k = 0; k < ch.length; k++) { acc += ch[k].length; if (prog < acc) { idx = k; break; } }
+    const txt = ch[idx];
+    if ($('#subtext').dataset.k !== showLine.start + ':' + idx) { $('#subtext').textContent = txt; $('#subtext').dataset.k = showLine.start + ':' + idx; }
+    const col = who === 'A' ? 'var(--allan)' : 'var(--arale)';
+    box.style.borderColor = col; $('#subname').style.background = col;
+    $('#subname').textContent = who === 'A' ? '講師 Allan' : '助教 阿拉蕾';
+    $('#subname').style.left = who === 'A' ? 'auto' : '22px'; $('#subname').style.right = who === 'A' ? '22px' : 'auto';
+    const sp = easeOut((t - showLine.start + 0.05) / 0.2);
+    sub.style.opacity = line ? Math.max(0.0, sp) : clamp(1 - (t - lastLine.end) / 0.6);
+  } else sub.style.opacity = 0;
+
+  // 講者
+  renderHosts(t, line, line ? line.start : 0);
+  // 表情符號
+  for (const who of ['A', 'R']) {
+    const h = HOSTS[who], e = h.querySelector('.emo');
+    let src = null; sc.lines.forEach(l => { if (l.s === who && l.emo && t >= l.start && t < l.start + 2.2) src = l; });
+    if (src) {
+      const et = t - src.start; const p = easeOutBack(et / 0.4);
+      e.textContent = src.emo; e.style.opacity = clamp(1 - (et - 1.6) / 0.6);
+      e.style.transform = `translateY(${-et * 6}px) scale(${p}) rotate(${Math.sin(et * 6) * 10}deg)`;
+    } else e.style.opacity = 0;
+  }
+}
+
+// ---------- boot ----------
+async function boot() {
+  const r = await fetch('build/timeline.json'); TL = await r.json();
+  await document.fonts.ready;
+  for (let i = 0; i < TL.scenes.length; i++) getScene(i);
+  await Promise.all([...document.images].map(im => im.complete ? 0 : new Promise(res => im.onload = im.onerror = res)));
+  renderAt(0);
+  window.__ready = true;
+}
+window.renderAt = renderAt;
+
+const RENDER = new URLSearchParams(location.search).has('render');
+if (RENDER) document.body.classList.add('render');
+function fit() {
+  if (RENDER) return;
+  const s = Math.min(innerWidth / 1280, (innerHeight - 48) / 720);
+  const st = $('#stage'); st.style.transform = `scale(${s})`; st.style.left = ((innerWidth - 1280 * s) / 2) + 'px'; st.style.top = ((innerHeight - 48 - 720 * s) / 2) + 'px';
+}
+addEventListener('resize', fit); fit();
+boot().then(() => {
+  if (RENDER) return;
+  const au = $('#audio'), seek = $('#seek');
+  const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+  $('#play').onclick = () => { if (au.paused) { au.play(); $('#play').textContent = '❚❚ 暫停'; } else { au.pause(); $('#play').textContent = '▶ 播放'; } };
+  seek.oninput = () => { au.currentTime = seek.value / 1000 * TL.duration; renderAt(au.currentTime); };
+  (function loop() { if (!au.paused) { renderAt(au.currentTime); seek.value = au.currentTime / TL.duration * 1000; } $('#clock').textContent = fmt(au.currentTime) + ' / ' + fmt(TL.duration); requestAnimationFrame(loop); })();
+});
+</script>
+</body>
+</html>

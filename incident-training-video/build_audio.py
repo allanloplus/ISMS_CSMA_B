@@ -17,7 +17,8 @@ if os.path.exists(CA):
     certifi.where = lambda: CA
 import edge_tts  # noqa: E402
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+# 課程資料夾（含 scenes.js）；預設為本腳本所在資料夾，可用第一個參數指定其他課程
+HERE = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.path.dirname(os.path.abspath(__file__))
 BUILD = os.path.join(HERE, 'build')
 TTS = os.path.join(BUILD, 'tts')
 SR = 24000

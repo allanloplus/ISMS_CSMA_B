@@ -1,0 +1,5 @@
+build/*
+!build/timeline.json
+!build/narration.m4a
+*.mp4
+!資安事件通報與應變_教育訓練動畫_公務機關B級.mp4

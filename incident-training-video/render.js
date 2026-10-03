@@ -3,14 +3,18 @@
 // 用法：
 //   node render.js stills 5 30 60          # 輸出指定秒數的截圖到 build/stills
 //   node render.js video [--fps 24] [--workers 4]
+//   COURSE_DIR=../incident-training-gov-b OUT_NAME=xxx.mp4 node render.js video   # 錄製其他課程
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 const { chromium } = require('playwright');
 
-const ROOT = __dirname;
-const BUILD = path.join(ROOT, 'build');
+const ROOT = path.resolve(__dirname, '..');                       // 以儲存庫根目錄提供網頁（課程間共用素材）
+const COURSE = path.resolve(process.env.COURSE_DIR || __dirname);   // 課程資料夾
+const COURSE_URL = '/' + path.relative(ROOT, COURSE).split(path.sep).map(encodeURIComponent).join('/');
+const OUT_NAME = process.env.OUT_NAME || '資安事件通報與應變_教育訓練動畫.mp4';
+const BUILD = path.join(COURSE, 'build');
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? Number(args[i + 1]) : d; };
 const FPS = opt('--fps', 24);
@@ -32,7 +36,7 @@ function serve() {
 async function openPage(browser, port) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: SCALE });
   page.on('pageerror', e => console.error('pageerror', e));
-  await page.goto(`http://127.0.0.1:${port}/player.html?render`);
+  await page.goto(`http://127.0.0.1:${port}${COURSE_URL}/player.html?render`);
   await page.waitForFunction(() => window.__ready === true, null, { timeout: 120000 });
   return page;
 }
@@ -80,7 +84,7 @@ async function segment(browser, port, idx, f0, f1) {
       const segs = await Promise.all([...Array(WORKERS).keys()].map(i => segment(browser, port, i, i * per, Math.min(total, (i + 1) * per))));
       const list = path.join(BUILD, 'segs.txt');
       fs.writeFileSync(list, segs.map(s => `file '${s}'`).join('\n'));
-      const outMp4 = path.join(ROOT, '資安事件通報與應變_教育訓練動畫.mp4');
+      const outMp4 = path.join(COURSE, OUT_NAME);
       await new Promise((res, rej) => {
         const ff = spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', list, '-i', path.join(BUILD, 'narration.wav'),
           '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '128k', '-shortest', '-movflags', '+faststart', outMp4], { stdio: 'inherit' });
