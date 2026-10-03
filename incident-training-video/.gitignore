@@ -1,2 +1,3 @@
-build/
-assets/fonts/*.ttf
+build/*
+!build/timeline.json
+!build/narration.m4a

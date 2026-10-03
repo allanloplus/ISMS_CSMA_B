@@ -142,6 +142,8 @@ async def main():
     wav = os.path.join(BUILD, 'narration.wav')
     p = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 's16le', '-ar', str(SR), '-ac', '1', '-i', '-', wav], stdin=subprocess.PIPE)
     p.communicate((mix * 32767).astype(np.int16).tobytes())
+    # 網頁播放器使用的壓縮音軌
+    subprocess.check_call(['ffmpeg', '-v', 'error', '-y', '-i', wav, '-c:a', 'aac', '-b:a', '96k', os.path.join(BUILD, 'narration.m4a')])
 
     with open(os.path.join(BUILD, 'timeline.json'), 'w', encoding='utf-8') as f:
         json.dump({'duration': round(total, 3), 'scenes': tl}, f, ensure_ascii=False, indent=1)

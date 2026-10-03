@@ -33,14 +33,14 @@
 
 ```bash
 pip install edge-tts numpy certifi      # 配音
-./fetch_fonts.sh                        # 下載字型（Huninn、Noto Sans TC，OFL 授權）
+./fetch_fonts.sh                        # （已附字型；需要時重新下載 Huninn、Noto Sans TC，OFL 授權）
 python3 build_audio.py                  # 產生配音、時間軸與音軌 → build/
 node render.js stills 10 60 120         # （選用）輸出指定秒數截圖檢查版面
 node render.js video --fps 24 --workers 4   # 逐格錄製並合成 MP4（需 Playwright + ffmpeg）
 ```
 
 - 台詞與畫面內容都在 `scenes.js`，改完重跑上面三個指令即可（配音有快取，只會重新合成改過的句子）。
-- `player.html` 也可以直接當互動播放器：先用 ffmpeg 將 `build/narration.wav` 轉為 `build/narration.m4a`，再以任何靜態伺服器（例如 `npx http-server`）開啟即可播放、拖曳進度。
+- `player.html` 是互動播放器（動畫 + 配音，可拖曳進度）；儲存庫根目錄的 `index.html` 為入口頁，以任何靜態伺服器（例如 `npx http-server` 或 GitHub Pages）開啟即可。
 - 若要換成其他公司的窗口名稱（例如「資訊室」「儀電課」），只需修改 `scenes.js` 對應文字。
 
 ## 法規依據

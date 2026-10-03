@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>資安事件通報與應變</title>
+<meta name="description" content="特定非公務機關 資安事件通報與應變 教育訓練動畫">
+<style>
+@font-face { font-family: 'Huninn'; src: url('incident-training-video/assets/fonts/Huninn.ttf') format('truetype'); }
+:root {
+  --bg: #f3f8ff; --card: #ffffff; --ink: #1d2b53; --muted: #5d6475; --line: #e3eaf7;
+  --allan: #2f7de1; --arale: #ff5f9e; --orange: #ff9a1f;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #10141f; --card: #1a2030; --ink: #e8eefc; --muted: #a3acc2; --line: #2a3348; }
+}
+:root[data-theme="dark"] { --bg: #10141f; --card: #1a2030; --ink: #e8eefc; --muted: #a3acc2; --line: #2a3348; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--ink); font-family: 'Huninn', system-ui, sans-serif; line-height: 1.6; }
+main { max-width: 1040px; margin: 0 auto; padding: 32px 16px 56px; }
+header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+header img { width: 72px; height: 72px; border-radius: 18px; border: 4px solid var(--allan); background: #fff; object-fit: cover; }
+header img.r { border-color: var(--arale); }
+h1 { font-size: clamp(24px, 4vw, 34px); }
+.sub { color: var(--muted); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px; margin-top: 18px; }
+video { width: 100%; border-radius: 12px; background: #000; display: block; }
+.missing { display: none; padding: 32px 16px; text-align: center; color: var(--muted); }
+.btns { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.btn { display: inline-block; text-decoration: none; color: #fff; background: var(--allan); padding: 10px 20px; border-radius: 26px; font-size: 17px; }
+.btn.alt { background: var(--orange); }
+h2 { font-size: 20px; margin-bottom: 8px; }
+ol { padding-left: 1.4em; }
+li { margin: 2px 0; }
+.note { font-size: 14px; color: var(--muted); margin-top: 10px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img class="r" src="incident-training-video/assets/arale.png" alt="助教 阿拉蕾">
+    <div>
+      <h1>資安事件來了怎麼辦？</h1>
+      <div class="sub">特定非公務機關 資安事件通報與應變 教育訓練｜講師 Allan × 助教 阿拉蕾</div>
+    </div>
+    <img src="incident-training-video/assets/allan.png" alt="講師 Allan">
+  </header>
+
+  <section class="card">
+    <video id="v" controls preload="metadata" src="incident-training-video/%E8%B3%87%E5%AE%89%E4%BA%8B%E4%BB%B6%E9%80%9A%E5%A0%B1%E8%88%87%E6%87%89%E8%AE%8A_%E6%95%99%E8%82%B2%E8%A8%93%E7%B7%B4%E5%8B%95%E7%95%AB.mp4"></video>
+    <div class="missing" id="missing">影片檔尚未就緒，請改用下方「互動動畫播放器」觀看。</div>
+    <div class="btns">
+      <a class="btn" href="incident-training-video/player.html">▶ 互動動畫播放器</a>
+      <a class="btn alt" href="incident-training-video/%E8%B3%87%E5%AE%89%E4%BA%8B%E4%BB%B6%E9%80%9A%E5%A0%B1%E8%88%87%E6%87%89%E8%AE%8A_%E6%95%99%E8%82%B2%E8%A8%93%E7%B7%B4%E5%8B%95%E7%95%AB.mp4" download>⬇ 下載 MP4</a>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>課程章節（約 15.6 分鐘）</h2>
+    <ol>
+      <li>法規架構：資通安全管理法（114 年修正）、資通安全事件通報應變及演練辦法（115.01.05 修正）</li>
+      <li>未通報罰則：新臺幣 30 萬～1,000 萬元，按次處罰</li>
+      <li>資安事件定義、知悉時間、事件類型、IT 與 OT</li>
+      <li>事件四級分級（機密性／完整性／可用性）</li>
+      <li>黃金時間軸：1 小時通報、72／36 小時損害控制或復原、1 個月改善報告</li>
+      <li>通報內容與角色分工</li>
+      <li>實戰案例：IT 勒索軟體（第二級）、OT 工程師站中毒（第三級）</li>
+      <li>損害控制與證據保全、復原結案與事件學習、演練</li>
+      <li>隨堂測驗與七步驟總整理</li>
+    </ol>
+    <p class="note">內容不含特定公司名稱，可用於同性質之特定非公務機關。互動播放器需透過網頁伺服器開啟（如 GitHub Pages 或 <code>npx http-server</code>）。</p>
+  </section>
+</main>
+<script>
+document.getElementById('v').addEventListener('error', () => {
+  document.getElementById('v').style.display = 'none';
+  document.getElementById('missing').style.display = 'block';
+});
+</script>
+</body>
+</html>
