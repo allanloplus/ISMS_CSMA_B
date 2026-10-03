@@ -29,6 +29,7 @@ video { width: 100%; border-radius: 12px; background: #000; display: block; }
 .btns { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
 .btn { display: inline-block; text-decoration: none; color: #fff; background: var(--allan); padding: 10px 20px; border-radius: 26px; font-size: 17px; }
 .btn.alt { background: var(--orange); }
+.btn.quiz { background: #1f9d57; }
 h2 { font-size: 20px; margin-bottom: 8px; }
 ol { padding-left: 1.4em; }
 li { margin: 2px 0; }
@@ -51,6 +52,7 @@ li { margin: 2px 0; }
     <div class="missing" id="missing">影片檔尚未就緒，請改用下方「互動動畫播放器」觀看。</div>
     <div class="btns">
       <a class="btn" href="incident-training-video/player.html">▶ 互動動畫播放器</a>
+      <a class="btn quiz" href="incident-training-video/quiz.html">📝 課後測驗（取得結業證書）</a>
       <a class="btn alt" href="incident-training-video/%E8%B3%87%E5%AE%89%E4%BA%8B%E4%BB%B6%E9%80%9A%E5%A0%B1%E8%88%87%E6%87%89%E8%AE%8A_%E6%95%99%E8%82%B2%E8%A8%93%E7%B7%B4%E5%8B%95%E7%95%AB.mp4" download>⬇ 下載 MP4</a>
     </div>
   </section>
@@ -68,6 +70,7 @@ li { margin: 2px 0; }
       <li>損害控制與證據保全、復原結案與事件學習、演練</li>
       <li>隨堂測驗與七步驟總整理</li>
     </ol>
+    <p style="margin-top:10px">看完課程後請完成 <a href="incident-training-video/quiz.html">課後測驗</a>（10 題，80 分及格），通過即可下載結業證書 PDF（附題目與解答）。</p>
     <p class="note">內容不含特定公司名稱，可用於同性質之特定非公務機關。互動播放器需透過網頁伺服器開啟（如 GitHub Pages 或 <code>npx http-server</code>）。</p>
   </section>
 </main>

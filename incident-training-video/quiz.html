@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>課後測驗</title>
+<meta name="description" content="資安事件通報與應變 教育訓練 課後測驗與結業證書">
+<style>
+@font-face { font-family: 'Huninn'; src: url('assets/fonts/Huninn.ttf') format('truetype'); }
+@font-face { font-family: 'NotoTC900'; src: url('assets/fonts/NotoSansTC-900.ttf') format('truetype'); font-weight: 900; }
+:root {
+  --bg: #f3f8ff; --card: #ffffff; --ink: #1d2b53; --muted: #5d6475; --line: #e3eaf7; --soft: #f4f7fd;
+  --allan: #2f7de1; --arale: #ff5f9e; --orange: #ff9a1f; --green: #1f9d57; --red: #e04646;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #10141f; --card: #1a2030; --ink: #e8eefc; --muted: #a3acc2; --line: #2a3348; --soft: #222a3d; }
+}
+:root[data-theme="dark"] { --bg: #10141f; --card: #1a2030; --ink: #e8eefc; --muted: #a3acc2; --line: #2a3348; --soft: #222a3d; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--ink); font-family: 'Huninn', system-ui, sans-serif; line-height: 1.6; }
+main { max-width: 860px; margin: 0 auto; padding: 28px 16px 64px; }
+header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+header img { width: 60px; height: 60px; border-radius: 16px; border: 4px solid var(--arale); background: #fff; object-fit: cover; object-position: 40% 30%; }
+h1 { font-size: clamp(22px, 4vw, 30px); }
+.sub { color: var(--muted); font-size: 15px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; margin-top: 18px; }
+h2 { font-size: 20px; margin-bottom: 10px; }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+.fields label { display: flex; flex-direction: column; font-size: 15px; color: var(--muted); }
+.fields input { margin-top: 4px; font: inherit; color: var(--ink); background: var(--soft); border: 2px solid var(--line); border-radius: 10px; padding: 8px 12px; }
+.fields input:focus { outline: none; border-color: var(--allan); }
+.fields input.bad { border-color: var(--red); }
+.req { color: var(--red); }
+.q { padding: 14px 0; border-top: 1px dashed var(--line); }
+.q:first-of-type { border-top: 0; }
+.qt { font-size: 17px; margin-bottom: 8px; }
+.qt b { color: var(--orange); margin-right: 6px; }
+.opt { display: flex; gap: 10px; align-items: flex-start; padding: 8px 12px; margin: 6px 0; border-radius: 10px; background: var(--soft); border: 2px solid transparent; cursor: pointer; }
+.opt:hover { border-color: var(--line); }
+.opt input { margin-top: 6px; accent-color: var(--allan); }
+.opt.sel { border-color: var(--allan); }
+.bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 18px; }
+.btn { font: inherit; font-size: 16px; border: 0; cursor: pointer; text-decoration: none; color: #fff; background: var(--allan); padding: 10px 22px; border-radius: 26px; }
+.btn.alt { background: var(--orange); }
+.btn.ghost { background: transparent; color: var(--allan); border: 2px solid var(--allan); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.hint { color: var(--muted); font-size: 14px; }
+.err { color: var(--red); font-size: 14px; }
+#result { display: none; }
+.score { font-family: 'NotoTC900', 'Huninn', sans-serif; font-weight: 900; font-size: 56px; line-height: 1.1; }
+.pass .score { color: var(--green); } .fail .score { color: var(--red); }
+.msg { font-size: 18px; margin: 6px 0 4px; }
+#certPreview { width: 100%; border-radius: 10px; border: 1px solid var(--line); margin-top: 14px; display: none; }
+.note { font-size: 13px; color: var(--muted); margin-top: 12px; }
+@media (max-width: 600px) { .fields { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="assets/arale.png" alt="助教 阿拉蕾">
+    <div>
+      <h1>課後測驗｜資安事件通報與應變</h1>
+      <div class="sub">共 10 題、每題 10 分，<b>80 分（含）以上</b>通過，可下載結業證書（附題目與解答）。</div>
+    </div>
+  </header>
+
+  <form id="quiz" novalidate>
+    <section class="card">
+      <h2>受訓人員資料</h2>
+      <div class="fields">
+        <label>公司名稱 <span class="req">*</span><input name="company" autocomplete="organization" required></label>
+        <label>單位 <span class="req">*</span><input name="dept" required></label>
+        <label>姓名 <span class="req">*</span><input name="name" autocomplete="name" required></label>
+        <label>職稱 <span class="req">*</span><input name="title" autocomplete="organization-title" required></label>
+        <label style="grid-column: 1 / -1">e-mail <span class="req">*</span><input name="email" type="email" autocomplete="email" required></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>測驗題目</h2>
+      <div id="questions"></div>
+    </section>
+
+    <div class="bar">
+      <button class="btn" id="submit" type="submit">送出答案</button>
+      <span class="hint" id="progress"></span>
+      <span class="err" id="formErr"></span>
+    </div>
+  </form>
+
+  <section class="card" id="result">
+    <div id="resBox">
+      <div class="score" id="score"></div>
+      <div class="msg" id="msg"></div>
+      <div class="hint" id="detail"></div>
+    </div>
+    <div class="bar" id="passBar" style="display:none">
+      <button class="btn" id="dlPdf" type="button">⬇ 下載結業證書 PDF（含題目與解答）</button>
+      <button class="btn ghost" id="dlPng" type="button">⬇ 證書圖檔 PNG</button>
+    </div>
+    <div class="bar" id="failBar" style="display:none">
+      <a class="btn alt" href="player.html">▶ 重新觀看課程</a>
+      <button class="btn ghost" id="retry" type="button">↻ 重新測驗</button>
+    </div>
+    <img id="certPreview" alt="結業證書預覽">
+    <p class="note">本頁所填資料只用於產生您的證書，不會上傳或傳送到任何伺服器。</p>
+  </section>
+</main>
+
+<script src="assets/vendor/jspdf.umd.min.js"></script>
+<script>
+'use strict';
+const COURSE = '資安事件通報與應變';
+const PASS_SCORE = 80;
+
+// 題庫：ans 為正確選項於 opts 中之索引；exp 為解析
+const QUESTIONS = [
+  { q: '特定非公務機關知悉資通安全事件後，應於多久內向中央目的事業主管機關完成通報？',
+    opts: ['30 分鐘內', '1 小時內', '8 小時內', '24 小時內'], ans: 1,
+    exp: '依「資通安全事件通報應變及演練辦法」，應於知悉後一小時內，依中央目的事業主管機關指定之方式完成通報。' },
+  { q: '法定通報時限的起算點「知悉時間」是指？',
+    opts: ['通報窗口接獲通報，或確認監控警示為疑似資安事件的時間', '事件實際發生的時間', '資安主管核定事件等級的時間', '主管機關完成等級審核的時間'], ans: 0,
+    exp: '知悉時間是計算法定通報及應變時限的起點，由通報窗口接獲通報或確認警示時起算。' },
+  { q: '判定資通安全事件等級時，依據的三個面向是？',
+    opts: ['損失金額、影響人數、媒體關注度', '資訊遭洩漏、系統或資訊遭竄改、業務運作受影響或停頓', '發生時間、發生地點、相關人員', '硬體、軟體、網路'], ans: 1,
+    exp: '分別對應機密性、完整性、可用性；同一事件符合多項情形者，從其最高等級。' },
+  { q: '事件等級一時無法判定時，應如何處理？',
+    opts: ['從低認定，避免浪費資源', '等全部查明後再通報', '從高認定，後續依實際影響調整並續報', '由發現人員自行決定'], ans: 2,
+    exp: '無法判定時從高認定，並於後續調查依實際影響變更等級、辦理續報。' },
+  { q: '第一級、第二級（一般事件）應於知悉後多久內完成損害控制或復原？',
+    opts: ['24 小時', '36 小時', '72 小時', '一週'], ans: 2,
+    exp: '一般事件為知悉後 72 小時內；重大事件（第三、四級）為 36 小時內。' },
+  { q: '第三級、第四級（重大事件）應於知悉後多久內完成損害控制或復原？',
+    opts: ['8 小時', '36 小時', '72 小時', '一個月'], ans: 1,
+    exp: '重大事件須於知悉後 36 小時內完成損害控制或復原，並應立即報告資訊安全長。' },
+  { q: '資通安全事件的「調查、處理及改善報告」應於何時送交？',
+    opts: ['知悉後 72 小時內', '下次管理審查會議前', '主管機關要求時才需提出', '事件處理完成後一個月內'], ans: 3,
+    exp: '事件處理完成後一個月內送交，內容包括事件經過、根本原因、影響範圍、處理過程、改善措施及完成期程。' },
+  { q: '週六深夜，你發現辦公電腦跳出勒索訊息，最正確的做法是？',
+    opts: ['立即關機並重灌系統', '拔除網路線隔離（不關機），並立即通報中控室值班主管', '依勒索訊息付款取回檔案', '等週一上班再向資安單位報告'], ans: 1,
+    exp: '關機可能使記憶體證據消失；應先斷網隔離、保留現場，非上班時間通報中控室值班主管轉知窗口。' },
+  { q: 'OT 工程師站感染惡意程式，但機組運轉未受影響，下列敘述何者正確？',
+    opts: ['屬第一級，由 IT 人員直接關機重灌即可', '機組沒受影響，不需要通報', '屬第三級（重大事件），以機組安全為優先，由儀控會同運轉依原廠指引隔離', '等原廠下次來廠時再處理'], ans: 2,
+    exp: '涉及關鍵基礎設施維運之核心系統受影響即為第三級；OT 隔離、切換或停機須由儀控會同運轉並依原廠指引辦理。' },
+  { q: '依 114 年修正之資通安全管理法，特定非公務機關未依規定通報資通安全事件，可處多少罰鍰？',
+    opts: ['新臺幣 1 萬元以上 10 萬元以下', '新臺幣 10 萬元以上 100 萬元以下', '新臺幣 30 萬元以上 1,000 萬元以下，並得按次處罰', '不罰，僅需書面說明'], ans: 2,
+    exp: '由中央目的事業主管機關處 30 萬元以上 1,000 萬元以下罰鍰，並令限期改正；屆期未改正者按次處罰。' },
+];
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const LETTERS = 'ABCD';
+const FIELDS = ['company', 'dept', 'name', 'title', 'email'];
+const LABELS = { company: '公司名稱', dept: '單位', name: '姓名', title: '職稱', email: 'e-mail' };
+
+let order = [];   // 每次測驗：題序與選項順序隨機
+let lastResult = null;
+
+function buildQuiz() {
+  order = shuffle(QUESTIONS.map((_, i) => i)).map(qi => ({ qi, opts: shuffle(QUESTIONS[qi].opts.map((_, k) => k)) }));
+  $('#questions').innerHTML = order.map((o, n) => {
+    const Q = QUESTIONS[o.qi];
+    return `<div class="q"><div class="qt"><b>${n + 1}.</b>${esc(Q.q)}</div>` +
+      o.opts.map((k, j) => `<label class="opt"><input type="radio" name="q${n}" value="${k}"><span>(${LETTERS[j]}) ${esc(Q.opts[k])}</span></label>`).join('') + '</div>';
+  }).join('');
+  updateProgress();
+}
+
+function answers() { return order.map((o, n) => { const r = document.querySelector(`input[name="q${n}"]:checked`); return r ? Number(r.value) : null; }); }
+function updateProgress() {
+  const done = answers().filter(a => a != null).length;
+  $('#progress').textContent = `已作答 ${done} / ${QUESTIONS.length} 題`;
+  document.querySelectorAll('.opt').forEach(l => l.classList.toggle('sel', l.querySelector('input').checked));
+}
+function info() { const f = $('#quiz'); const o = {}; FIELDS.forEach(k => o[k] = f.elements[k].value.trim()); return o; }
+const emailOk = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+
+// 個人資料草稿（僅存在本機瀏覽器，方便重新測驗時免重填）
+function saveDraft() { try { localStorage.setItem('ir-quiz-info', JSON.stringify(info())); } catch (e) {} }
+function loadDraft() { try { const d = JSON.parse(localStorage.getItem('ir-quiz-info') || '{}'); FIELDS.forEach(k => { if (d[k]) $('#quiz').elements[k].value = d[k]; }); } catch (e) {} }
+
+$('#quiz').addEventListener('change', e => { updateProgress(); if (FIELDS.includes(e.target.name)) saveDraft(); });
+$('#quiz').addEventListener('input', e => { if (FIELDS.includes(e.target.name)) e.target.classList.remove('bad'); });
+
+$('#quiz').addEventListener('submit', e => {
+  e.preventDefault();
+  const inf = info(); const ans = answers();
+  const missing = FIELDS.filter(k => !inf[k] || (k === 'email' && !emailOk(inf[k])));
+  FIELDS.forEach(k => $('#quiz').elements[k].classList.toggle('bad', missing.includes(k)));
+  const unanswered = ans.map((a, n) => a == null ? n + 1 : null).filter(Boolean);
+  if (missing.length) { $('#formErr').textContent = '請完整填寫：' + missing.map(k => LABELS[k]).join('、') + (missing.includes('email') && inf.email ? '（e-mail 格式不正確）' : ''); $('#quiz').elements[missing[0]].focus(); return; }
+  if (unanswered.length) { $('#formErr').textContent = '尚未作答：第 ' + unanswered.join('、') + ' 題'; return; }
+  $('#formErr').textContent = '';
+  const correct = order.map((o, n) => ans[n] === QUESTIONS[o.qi].ans);
+  const score = correct.filter(Boolean).length * (100 / QUESTIONS.length);
+  const passed = score >= PASS_SCORE;
+  const now = new Date();
+  lastResult = { info: inf, order, ans, correct, score, passed, date: now, certNo: certNo(inf, now) };
+  showResult();
+});
+
+function certNo(inf, d) {
+  let h = 2166136261; const s = inf.name + inf.email + d.getTime();
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  const ymd = d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+  return `IR-${ymd}-${(h >>> 0).toString(36).toUpperCase().padStart(6, '0').slice(-6)}`;
+}
+
+async function showResult() {
+  const r = lastResult;
+  $('#quiz').style.display = 'none';
+  $('#result').style.display = 'block';
+  $('#resBox').className = r.passed ? 'pass' : 'fail';
+  $('#score').textContent = r.score + ' 分';
+  const n = r.correct.filter(Boolean).length;
+  if (r.passed) {
+    $('#msg').textContent = `🎉 恭喜 ${r.info.name}，通過課後測驗！`;
+    $('#detail').textContent = `答對 ${n} / ${QUESTIONS.length} 題。請下載結業證書留存（PDF 第 2 頁起為題目與解答）。`;
+    $('#passBar').style.display = 'flex'; $('#failBar').style.display = 'none';
+    try {
+      await fontsReady();
+      r.certCanvas = await drawCertificate(r);
+      $('#certPreview').src = r.certCanvas.toDataURL('image/jpeg', 0.9);
+      $('#certPreview').style.display = 'block';
+    } catch (err) {
+      $('#detail').textContent += '（證書產生失敗：請透過網頁伺服器開啟本頁，勿直接以檔案開啟。）';
+      console.error(err);
+    }
+  } else {
+    $('#msg').textContent = `答對 ${n} / ${QUESTIONS.length} 題，未達 ${PASS_SCORE} 分。`;
+    $('#detail').textContent = '請重新觀看課程，特別留意「黃金時間軸」「事件分級」與「實戰案例」，再重新測驗。';
+    $('#passBar').style.display = 'none'; $('#failBar').style.display = 'flex';
+    $('#certPreview').style.display = 'none';
+  }
+  $('#result').scrollIntoView({ behavior: 'smooth' });
+}
+
+$('#retry').addEventListener('click', () => {
+  lastResult = null; buildQuiz();
+  $('#result').style.display = 'none'; $('#quiz').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ───────────── 證書與解答繪製 ─────────────
+const F = (px, w) => `${w === 900 ? '900 ' : ''}${px}px ${w === 900 ? 'NotoTC900' : 'Huninn'}, sans-serif`;
+async function fontsReady() { await Promise.all([document.fonts.load(F(40)), document.fonts.load(F(40, 900))]); }
+function loadImg(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+const fmtDate = d => `${d.getFullYear() - 1911} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日`;
+const fmtDateAD = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+function fitText(ctx, text, maxW, px, w) { let s = px; ctx.font = F(s, w); while (ctx.measureText(text).width > maxW && s > 12) { s -= 2; ctx.font = F(s, w); } return s; }
+function wrap(ctx, text, maxW) {
+  const lines = []; let cur = '';
+  for (const ch of text) { if (ctx.measureText(cur + ch).width > maxW && cur) { lines.push(cur); cur = ch; } else cur += ch; }
+  if (cur) lines.push(cur); return lines;
+}
+function roundRect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function mark(ctx, x, y, ok, s = 22) {
+  ctx.save(); ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.strokeStyle = ok ? '#1f9d57' : '#e04646'; ctx.beginPath();
+  if (ok) { ctx.moveTo(x, y); ctx.lineTo(x + s * .38, y + s * .38); ctx.lineTo(x + s, y - s * .45); }
+  else { ctx.moveTo(x, y - s / 2); ctx.lineTo(x + s * .8, y + s * .3); ctx.moveTo(x + s * .8, y - s / 2); ctx.lineTo(x, y + s * .3); }
+  ctx.stroke(); ctx.restore();
+}
+
+async function drawCertificate(r) {
+  const W = 1754, H = 1240; // A4 橫式 150dpi
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const ctx = c.getContext('2d');
+  const [arale, allan] = await Promise.all([loadImg('assets/arale.png'), loadImg('assets/allan_half.png')]);
+  // 底色與外框
+  const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#fffdf6'); g.addColorStop(1, '#f6f9ff');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = '#1d2b53'; ctx.lineWidth = 14; ctx.strokeRect(36, 36, W - 72, H - 72);
+  ctx.strokeStyle = '#d9a520'; ctx.lineWidth = 4; ctx.strokeRect(62, 62, W - 124, H - 124);
+  // 角落裝飾
+  [[62, 62], [W - 62, 62], [62, H - 62], [W - 62, H - 62]].forEach(([x, y]) => { ctx.fillStyle = '#d9a520'; ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI * 2); ctx.fill(); });
+  // 頂部色帶
+  const band = ctx.createLinearGradient(300, 0, W - 300, 0); band.addColorStop(0, '#ff5f9e'); band.addColorStop(.5, '#ff9a1f'); band.addColorStop(1, '#2f7de1');
+  ctx.fillStyle = band; roundRect(ctx, W / 2 - 330, 100, 660, 10, 5); ctx.fill();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#8a6d1d'; ctx.font = F(28); ctx.fillText('CERTIFICATE OF COMPLETION', W / 2, 170);
+  ctx.fillStyle = '#1d2b53'; ctx.font = F(108, 900); ctx.fillText('結 業 證 書', W / 2, 300);
+  // 本文
+  ctx.fillStyle = '#2b2f3a'; ctx.font = F(36); ctx.fillText('茲證明', W / 2, 400);
+  const org = `${r.info.company}　${r.info.dept}`;
+  fitText(ctx, org, 1200, 40); ctx.fillStyle = '#1d2b53'; ctx.fillText(org, W / 2, 470);
+  const who = `${r.info.title}　${r.info.name}　君`;
+  fitText(ctx, who, 1200, 76, 900); ctx.fillStyle = '#1d2b53'; ctx.fillText(who, W / 2, 575);
+  ctx.strokeStyle = '#d9a520'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(W / 2 - 420, 605); ctx.lineTo(W / 2 + 420, 605); ctx.stroke();
+  ctx.fillStyle = '#2b2f3a'; ctx.font = F(34);
+  ctx.fillText(`已完成「${COURSE}」教育訓練課程，並通過課後測驗，`, W / 2, 680);
+  ctx.fillText(`測驗成績 ${r.score} 分（及格標準 ${PASS_SCORE} 分），特頒此證。`, W / 2, 735);
+  ctx.fillStyle = '#5d6475'; ctx.font = F(24);
+  ctx.fillText('課程依據：資通安全管理法、資通安全事件通報應變及演練辦法、CNS 27001 / ISO/IEC 27001 資訊安全事故管理', W / 2, 800);
+  // 底部資訊
+  ctx.fillStyle = '#1d2b53'; ctx.font = F(30); ctx.fillText(`中華民國 ${fmtDate(r.date)}`, W / 2, 900);
+  ctx.fillStyle = '#5d6475'; ctx.font = F(24);
+  ctx.fillText(`證書編號：${r.certNo}　｜　e-mail：${r.info.email}`, W / 2, 950);
+  // 講師與助教
+  const aw = 200, ah = aw * arale.height / arale.width;
+  ctx.save(); roundRect(ctx, 150, H - 120 - ah, aw, ah, 24); ctx.clip(); ctx.drawImage(arale, 150, H - 120 - ah, aw, ah); ctx.restore();
+  ctx.strokeStyle = '#ff5f9e'; ctx.lineWidth = 6; roundRect(ctx, 150, H - 120 - ah, aw, ah, 24); ctx.stroke();
+  ctx.fillStyle = '#ff5f9e'; ctx.font = F(24); ctx.fillText('助教 阿拉蕾', 250, H - 84);
+  const lw = 190, lh = lw * allan.height / allan.width;
+  ctx.drawImage(allan, W - 150 - lw, H - 112 - lh, lw, lh);
+  ctx.fillStyle = '#2f7de1'; ctx.font = F(24); ctx.fillText('講師 Allan', W - 150 - lw / 2, H - 84);
+  // 合格印章
+  ctx.save(); ctx.translate(W - 330, 560); ctx.rotate(-0.22);
+  ctx.strokeStyle = 'rgba(224,70,70,.85)'; ctx.lineWidth = 8; ctx.beginPath(); ctx.arc(0, 0, 92, 0, Math.PI * 2); ctx.stroke();
+  ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, 78, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = 'rgba(224,70,70,.88)'; ctx.font = F(58, 900); ctx.textBaseline = 'middle'; ctx.fillText('合格', 0, -8);
+  ctx.font = F(20); ctx.fillText('PASSED', 0, 42); ctx.restore();
+  return c;
+}
+
+// 題目與解答（A4 直式，依實際高度自動分頁）
+const AP = { W: 1240, H: 1754, M: 90, TOP: 286, BOTTOM: 1754 - 110 };
+function drawQuestion(ctx, r, n, y, draw) {
+  const { W, M } = AP, TW = W - 2 * M;
+  const o = r.order[n], Q = QUESTIONS[o.qi], mine = r.ans[n], ok = r.correct[n];
+  if (draw) mark(ctx, M, y - 8, ok, 24);
+  ctx.fillStyle = '#1d2b53'; ctx.font = F(26);
+  const ql = wrap(ctx, `${n + 1}. ${Q.q}`, TW - 44);
+  if (draw) ql.forEach((l, i) => ctx.fillText(l, M + 40, y + i * 36));
+  y += ql.length * 36 + 6;
+  o.opts.forEach((k, j) => {
+    const isAns = k === Q.ans, isMine = k === mine;
+    ctx.font = F(23);
+    const lines = wrap(ctx, `(${LETTERS[j]}) ${Q.opts[k]}${isAns ? '　✓ 正確答案' : ''}${isMine && !isAns ? '　✗ 本人作答' : ''}${isMine && isAns ? '（本人作答）' : ''}`, TW - 70);
+    const h = lines.length * 32 + 10;
+    if (draw) {
+      if (isAns || isMine) { ctx.fillStyle = isAns ? '#e8f8ee' : '#fdecec'; roundRect(ctx, M + 34, y - 26, TW - 34, h, 8); ctx.fill(); }
+      ctx.fillStyle = isAns ? '#1f9d57' : isMine ? '#e04646' : '#2b2f3a';
+      lines.forEach((l, i) => ctx.fillText(l, M + 50, y + i * 32));
+    }
+    y += h + 2;
+  });
+  ctx.fillStyle = '#5d6475'; ctx.font = F(21);
+  const el = wrap(ctx, `解析：${Q.exp}`, TW - 50);
+  if (draw) el.forEach((l, i) => ctx.fillText(l, M + 40, y + 6 + i * 30));
+  y += el.length * 30 + 30;
+  if (draw) { ctx.strokeStyle = '#eef2f9'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(M, y - 14); ctx.lineTo(W - M, y - 14); ctx.stroke(); }
+  return y + 18;
+}
+function paginate(r) {
+  const ctx = document.createElement('canvas').getContext('2d');
+  const pages = []; let cur = [], y = AP.TOP;
+  for (let n = 0; n < QUESTIONS.length; n++) {
+    const y2 = drawQuestion(ctx, r, n, y, false);
+    if (y2 - 30 > AP.BOTTOM && cur.length) { pages.push(cur); cur = []; y = AP.TOP; }
+    cur.push(n); y = drawQuestion(ctx, r, n, y, false);
+  }
+  if (cur.length) pages.push(cur);
+  return pages;
+}
+function drawAnswerPage(r, list, page, pages) {
+  const { W, H, M } = AP;
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const ctx = c.getContext('2d');
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#1d2b53'; ctx.fillRect(0, 0, W, 16);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#1d2b53'; ctx.font = F(40, 900); ctx.fillText(`課後測驗 題目與解答（${page}/${pages}）`, M, 96);
+  ctx.fillStyle = '#5d6475'; ctx.font = F(22);
+  ctx.fillText(`課程：${COURSE}　證書編號：${r.certNo}　測驗日期：${fmtDateAD(r.date)}`, M, 140);
+  ctx.fillText(`受訓人員：${r.info.company}／${r.info.dept}／${r.info.title}／${r.info.name}（${r.info.email}）`, M, 174);
+  ctx.fillText(`成績：${r.score} 分（答對 ${r.correct.filter(Boolean).length} / ${QUESTIONS.length} 題）　圖例：綠色＝正確答案；紅色＝本人誤答`, M, 208);
+  ctx.strokeStyle = '#e3eaf7'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(M, 232); ctx.lineTo(W - M, 232); ctx.stroke();
+  let y = AP.TOP;
+  for (const n of list) y = drawQuestion(ctx, r, n, y, true);
+  ctx.fillStyle = '#9aa3b8'; ctx.font = F(18); ctx.textAlign = 'center';
+  ctx.fillText('依據：資通安全管理法（114.09.24 修正公布）、資通安全事件通報應變及演練辦法（115.01.05 修正發布）', W / 2, H - 60);
+  return c;
+}
+
+function saveBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+$('#dlPdf').addEventListener('click', async () => {
+  const r = lastResult; if (!r || !r.passed) return;
+  const btn = $('#dlPdf'); btn.disabled = true; btn.textContent = '產生中…';
+  try {
+    await fontsReady();
+    const cert = r.certCanvas || await drawCertificate(r);
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true });
+    pdf.setProperties({ title: `${COURSE} 結業證書 - ${r.info.name}`, subject: COURSE });
+    pdf.addImage(cert.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 297, 210);
+    const pages = paginate(r);
+    for (let p = 0; p < pages.length; p++) {
+      const pg = drawAnswerPage(r, pages[p], p + 1, pages.length);
+      pdf.addPage('a4', 'portrait');
+      pdf.addImage(pg.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 210, 297);
+    }
+    saveBlob(pdf.output('blob'), `結業證書_${r.info.name}_${fmtDateAD(r.date)}.pdf`);
+  } catch (err) {
+    alert('PDF 產生失敗，請透過網頁伺服器開啟本頁後再試。'); console.error(err);
+  } finally { btn.disabled = false; btn.textContent = '⬇ 下載結業證書 PDF（含題目與解答）'; }
+});
+
+$('#dlPng').addEventListener('click', async () => {
+  const r = lastResult; if (!r || !r.passed) return;
+  await fontsReady();
+  const cert = r.certCanvas || await drawCertificate(r);
+  cert.toBlob(b => saveBlob(b, `結業證書_${r.info.name}_${fmtDateAD(r.date)}.png`), 'image/png');
+});
+
+loadDraft();
+buildQuiz();
+</script>
+</body>
+</html>
