@@ -29,7 +29,7 @@ body { font-family: 'Huninn', 'Noto Color Emoji', sans-serif; color: var(--ink);
 #progress { position: absolute; left: 0; top: 0; height: 6px; background: linear-gradient(90deg, var(--arale), var(--orange), var(--allan)); }
 
 /* content */
-#content { position: absolute; left: 36px; right: 36px; top: 88px; height: 412px; }
+#content { position: absolute; left: 36px; right: 36px; top: 88px; height: 412px; transform: scale(.86); transform-origin: 30% 0; }
 .scene { position: absolute; inset: 0; }
 .card { background: var(--card); border-radius: 18px; box-shadow: 0 6px 0 rgba(29,43,83,.10), 0 10px 24px rgba(29,43,83,.10); border: 3px solid #e8eefb; }
 .it { will-change: transform, opacity; }
@@ -38,19 +38,26 @@ body { font-family: 'Huninn', 'Noto Color Emoji', sans-serif; color: var(--ink);
 
 /* characters */
 .host { position: absolute; top: 508px; width: 184px; height: 196px; }
-#arale { left: 22px; } #allan { right: 22px; }
+#arale { left: 22px; }
 .host .frame { position: absolute; left: 0; top: 0; width: 184px; height: 168px; border-radius: 28px; overflow: hidden; background: #fff; border: 6px solid; }
-#arale .frame { border-color: var(--arale); } #allan .frame { border-color: var(--allan); }
+#arale .frame { border-color: var(--arale); }
 .host .frame img { width: 100%; height: 100%; object-fit: cover; }
-#arale .frame img { object-position: 40% 30%; } #allan .frame img { object-position: 50% 35%; }
+#arale .frame img { object-position: 40% 30%; }
+/* 講師 Allan：半身去背 */
+#allan { position: absolute; right: 12px; top: 430px; width: 206px; height: 290px; transform-origin: 50% 100%; }
+#allan .disc { position: absolute; left: 6px; right: 6px; bottom: 26px; height: 194px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #cfe3ff 0%, #9cc4fb 70%, #7fb0f6 100%); border: 5px solid var(--allan); }
+#allan .ring { left: 0px; top: auto; bottom: 20px; width: 206px; height: 206px; border-radius: 50%; }
+#allan .body { position: absolute; left: 0; right: 0; bottom: 0; width: 206px; height: 297px; object-fit: contain; object-position: 50% 100%;
+  filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(0 6px 10px rgba(29,43,83,.25)); }
+#allan .name { bottom: 2px; z-index: 2; }
 .host .name { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); color: #fff; font-size: 19px; padding: 4px 16px; border-radius: 20px; white-space: nowrap; box-shadow: 0 3px 0 rgba(0,0,0,.15); }
 #arale .name { background: var(--arale); } #allan .name { background: var(--allan); }
 .host .ring { position: absolute; left: -10px; top: -10px; width: 204px; height: 188px; border-radius: 36px; border: 5px dashed; opacity: 0; }
 #arale .ring { border-color: var(--arale); } #allan .ring { border-color: var(--allan); }
 .host .emo { position: absolute; top: -40px; font-size: 52px; opacity: 0; font-family: 'Noto Color Emoji'; }
-#arale .emo { right: -12px; } #allan .emo { left: -12px; }
+#arale .emo { right: -12px; } #allan .emo { left: -30px; top: 30px; }
 .host .waves { position: absolute; top: 40px; font-size: 26px; opacity: 0; }
-#arale .waves { right: -30px; } #allan .waves { left: -30px; }
+#arale .waves { right: -30px; } #allan .waves { left: -26px; top: 120px; }
 
 /* subtitle */
 #sub { position: absolute; left: 228px; right: 228px; top: 548px; height: 134px; display: flex; align-items: center; }
@@ -174,7 +181,7 @@ body.render #ui { display: none; }
   <div id="content"></div>
   <div id="sub"><div id="subbox"><div id="subname"></div><div id="subtext"></div></div></div>
   <div class="host" id="arale"><div class="ring"></div><div class="frame"><img src="assets/arale.png" alt=""></div><div class="name">助教 阿拉蕾</div><div class="emo"></div><div class="waves emoji">💬</div></div>
-  <div class="host" id="allan"><div class="ring"></div><div class="frame"><img src="assets/allan.png" alt=""></div><div class="name">講師 Allan</div><div class="emo"></div><div class="waves emoji">💬</div></div>
+  <div class="host" id="allan"><div class="disc"></div><div class="ring"></div><img class="body" src="assets/allan_half.png" alt=""><div class="name">講師 Allan</div><div class="emo"></div><div class="waves emoji">💬</div></div>
 </div>
 <div id="ui"><button id="play">▶ 播放</button><input id="seek" type="range" min="0" max="1000" value="0"><span id="clock">0:00</span></div>
 <audio id="audio" src="build/narration.m4a" preload="auto"></audio>

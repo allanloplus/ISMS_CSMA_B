@@ -1,3 +1,4 @@
 build/*
 !build/timeline.json
 !build/narration.m4a
+*.mp4
