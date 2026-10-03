@@ -55,11 +55,14 @@ async function stills(browser, port, times) {
 async function segment(browser, port, idx, f0, f1) {
   const out = path.join(BUILD, `seg_${idx}.mp4`);
   const page = await openPage(browser, port);
+  // 確保所有圖片已解碼
+  await page.evaluate(() => Promise.all([...document.images].map(i => i.decode().catch(() => {}))));
   const ff = spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-',
     '-c:v', 'libx264', '-preset', 'medium', '-crf', '20', '-pix_fmt', 'yuv420p', '-r', String(FPS), out], { stdio: ['pipe', 'inherit', 'inherit'] });
   const t0 = Date.now();
   for (let f = f0; f < f1; f++) {
-    await page.evaluate(t => window.renderAt(t), f / FPS);
+    // 等瀏覽器實際完成繪製（兩個 animation frame）再擷取，避免漏畫圖層
+    await page.evaluate(t => new Promise(res => { window.renderAt(t); requestAnimationFrame(() => requestAnimationFrame(res)); }), f / FPS);
     const buf = await page.screenshot({ type: 'jpeg', quality: 90 });
     if (!ff.stdin.write(buf)) await new Promise(r => ff.stdin.once('drain', r));
     if ((f - f0) % 500 === 0) console.log(`[w${idx}] ${f - f0}/${f1 - f0} frames, ${((Date.now() - t0) / 1000).toFixed(0)}s`);
@@ -79,14 +82,15 @@ async function segment(browser, port, idx, f0, f1) {
       await stills(browser, port, args.slice(1).map(Number));
     } else {
       const tl = JSON.parse(fs.readFileSync(path.join(BUILD, 'timeline.json'), 'utf8'));
-      const total = Math.ceil(tl.duration * FPS);
+      const [r0, r1] = (process.env.RANGE || `0,${tl.duration}`).split(',').map(Number);   // 測試用：RANGE=秒,秒
+      const f0 = Math.floor(r0 * FPS), total = Math.ceil(Math.min(r1, tl.duration) * FPS) - f0;
       const per = Math.ceil(total / WORKERS);
-      const segs = await Promise.all([...Array(WORKERS).keys()].map(i => segment(browser, port, i, i * per, Math.min(total, (i + 1) * per))));
+      const segs = await Promise.all([...Array(WORKERS).keys()].map(i => segment(browser, port, i, f0 + i * per, f0 + Math.min(total, (i + 1) * per))));
       const list = path.join(BUILD, 'segs.txt');
       fs.writeFileSync(list, segs.map(s => `file '${s}'`).join('\n'));
       const outMp4 = path.join(COURSE, OUT_NAME);
       await new Promise((res, rej) => {
-        const ff = spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', list, '-i', path.join(BUILD, 'narration.wav'),
+        const ff = spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', list, ...(process.env.RANGE ? ['-ss', String(r0)] : []), '-i', path.join(BUILD, 'narration.wav'),
           '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '128k', '-shortest', '-movflags', '+faststart', outMp4], { stdio: 'inherit' });
         ff.on('close', c => c === 0 ? res() : rej(new Error('ffmpeg ' + c)));
       });

@@ -47,8 +47,8 @@ body { font-family: 'Huninn', 'Noto Color Emoji', sans-serif; color: var(--ink);
 #allan { position: absolute; right: 12px; top: 430px; width: 206px; height: 290px; transform-origin: 50% 100%; }
 #allan .disc { position: absolute; left: 6px; right: 6px; bottom: 26px; height: 194px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #cfe3ff 0%, #9cc4fb 70%, #7fb0f6 100%); border: 5px solid var(--allan); }
 #allan .ring { left: 0px; top: auto; bottom: 20px; width: 206px; height: 206px; border-radius: 50%; }
-#allan .body { position: absolute; left: 0; right: 0; bottom: 0; width: 206px; height: 297px; object-fit: contain; object-position: 50% 100%;
-  filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(0 6px 10px rgba(29,43,83,.25)); }
+/* 白邊與陰影已預先合成於圖檔（避免 CSS filter 在錄製時漏畫） */
+#allan .body { position: absolute; left: -9px; right: -9px; bottom: -9px; width: 224px; height: 314px; object-fit: contain; object-position: 50% 100%; }
 #allan .name { bottom: 2px; z-index: 2; }
 .host .name { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); color: #fff; font-size: 19px; padding: 4px 16px; border-radius: 20px; white-space: nowrap; box-shadow: 0 3px 0 rgba(0,0,0,.15); }
 #arale .name { background: var(--arale); } #allan .name { background: var(--allan); }
@@ -181,7 +181,7 @@ body.render #ui { display: none; }
   <div id="content"></div>
   <div id="sub"><div id="subbox"><div id="subname"></div><div id="subtext"></div></div></div>
   <div class="host" id="arale"><div class="ring"></div><div class="frame"><img src="../incident-training-video/assets/arale.png" alt=""></div><div class="name">助教 阿拉蕾</div><div class="emo"></div><div class="waves emoji">💬</div></div>
-  <div class="host" id="allan"><div class="disc"></div><div class="ring"></div><img class="body" src="../incident-training-video/assets/allan_half.png" alt=""><div class="name">講師 Allan</div><div class="emo"></div><div class="waves emoji">💬</div></div>
+  <div class="host" id="allan"><div class="disc"></div><div class="ring"></div><img class="body" src="../incident-training-video/assets/allan_half_outline.png" alt=""><div class="name">講師 Allan</div><div class="emo"></div><div class="waves emoji">💬</div></div>
 </div>
 <div id="ui"><button id="play">▶ 播放</button><input id="seek" type="range" min="0" max="1000" value="0"><span id="clock">0:00</span></div>
 <audio id="audio" src="build/narration.m4a" preload="auto"></audio>
