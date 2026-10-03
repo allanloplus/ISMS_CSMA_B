@@ -6,7 +6,8 @@
 
 ## 成品
 
-- `資安事件通報與應變_教育訓練動畫.mp4`：成品影片（含配音、字幕、音效）
+- `資安事件通報與應變_教育訓練動畫.mp4`：成品影片（1080p，約 91 MB，含配音、字幕、音效）
+- `quiz.html`：課後測驗與結業證書
 
 ## 章節
 
@@ -46,6 +47,9 @@ pip install edge-tts numpy certifi      # 配音
 python3 build_audio.py                  # 產生配音、時間軸與音軌 → build/
 node render.js stills 10 60 120         # （選用）輸出指定秒數截圖檢查版面
 node render.js video --fps 24 --workers 4   # 逐格錄製並合成 MP4（需 Playwright + ffmpeg）
+# GitHub 單檔上限 100 MB，上傳前以兩階段編碼壓縮（約 91 MB）：
+# ffmpeg -i master.mp4 -c:v libx264 -tune animation -b:v 680k -pass 1 -an -f null /dev/null
+# ffmpeg -i master.mp4 -c:v libx264 -tune animation -b:v 680k -pass 2 -c:a aac -b:a 96k -movflags +faststart out.mp4
 ```
 
 - 台詞與畫面內容都在 `scenes.js`，改完重跑上面三個指令即可（配音有快取，只會重新合成改過的句子）。
