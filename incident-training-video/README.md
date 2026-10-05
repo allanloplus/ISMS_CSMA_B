@@ -7,6 +7,8 @@
 ## 成品
 
 - `資安事件通報與應變_教育訓練動畫.mp4`：成品影片（1080p，約 91 MB，含配音、字幕、音效）
+- `web_720p.mp4`：網頁播放用 720p 版（約 40 MB，入口頁預設播放，可切換 1080p）
+- `poster.jpg`：影片封面（開頁立即顯示）
 - `quiz.html`：課後測驗與結業證書
 
 ## 章節
@@ -45,6 +47,7 @@
 pip install edge-tts numpy certifi      # 配音
 ./fetch_fonts.sh                        # （已附字型；需要時重新下載 Huninn、Noto Sans TC，OFL 授權）
 python3 build_audio.py                  # 產生配音、時間軸與音軌 → build/
+python3 make_fonts.py                   # 文字有變更時，重新產生網頁用精簡字型
 node render.js stills 10 60 120         # （選用）輸出指定秒數截圖檢查版面
 node render.js video --fps 24 --workers 4   # 逐格錄製並合成 MP4（需 Playwright + ffmpeg）
 # GitHub 單檔上限 100 MB，上傳前以兩階段編碼壓縮（約 91 MB）：
@@ -55,6 +58,14 @@ node render.js video --fps 24 --workers 4   # 逐格錄製並合成 MP4（需 Pl
 - 台詞與畫面內容都在 `scenes.js`，改完重跑上面三個指令即可（配音有快取，只會重新合成改過的句子）。
 - `player.html` 是互動播放器（動畫 + 配音，可拖曳進度）；儲存庫根目錄的 `index.html` 為入口頁，以任何靜態伺服器（例如 `npx http-server` 或 GitHub Pages）開啟即可。
 - 若要換成其他公司的窗口名稱（例如「資訊室」「儀電課」），只需修改 `scenes.js` 對應文字。
+
+## 網頁載入速度
+
+- 頁面只載入精簡字型 `assets/fonts/*-sub.woff2`（約 310 KB，原完整字型 11.7 MB），並使用 `font-display: swap`，文字立即顯示。
+  **修改任何頁面、`scenes.js` 或 `quiz.html` 文字後，請執行 `python3 make_fonts.py` 重新產生**，否則新字會以系統字型顯示。
+- 完整字型 `*.ttf` 仍保留：證書繪製（姓名等任意字，於測驗頁背景下載）與影片錄製使用。
+- 影片：封面圖立即顯示、`preload="none"`（按播放才下載）、預設 720p；互動播放器開頁即畫出封面與「開始播放」鍵，音軌按播放才下載。
+- 實測（模擬 10 Mbps）：入口頁與各頁可操作時間由 10 秒以上（影片頁 120 秒仍未出現畫面）縮短至約 1 秒；2 Mbps 約 3 秒。
 
 ## 法規依據
 

@@ -6,8 +6,8 @@
 <title>課後測驗（特定非公務機關）</title>
 <meta name="description" content="資安事件通報與應變 教育訓練 課後測驗與結業證書">
 <style>
-@font-face { font-family: 'Huninn'; src: url('assets/fonts/Huninn.ttf') format('truetype'); }
-@font-face { font-family: 'NotoTC900'; src: url('assets/fonts/NotoSansTC-900.ttf') format('truetype'); font-weight: 900; }
+@font-face { font-family: 'Huninn'; src: url('assets/fonts/Huninn-sub.woff2') format('woff2'); font-display: swap; }
+@font-face { font-family: 'NotoTC900'; src: url('assets/fonts/NotoSansTC-900-sub.woff2') format('woff2'); font-weight: 900; font-display: swap; }
 :root {
   --bg: #f3f8ff; --card: #ffffff; --ink: #1d2b53; --muted: #5d6475; --line: #e3eaf7; --soft: #f4f7fd;
   --allan: #2f7de1; --arale: #ff5f9e; --orange: #ff9a1f; --green: #1f9d57; --red: #e04646;
@@ -69,11 +69,11 @@ h2 { font-size: 20px; margin-bottom: 10px; }
     <section class="card">
       <h2>受訓人員資料</h2>
       <div class="fields">
-        <label>公司名稱 <span class="req">*</span><input name="company" autocomplete="organization" required></label>
-        <label>單位 <span class="req">*</span><input name="dept" required></label>
-        <label>姓名 <span class="req">*</span><input name="name" autocomplete="name" required></label>
-        <label>職稱 <span class="req">*</span><input name="title" autocomplete="organization-title" required></label>
-        <label style="grid-column: 1 / -1">e-mail <span class="req">*</span><input name="email" type="email" autocomplete="email" required></label>
+        <label><span>公司名稱 <span class="req">*</span></span><input name="company" autocomplete="organization" required></label>
+        <label><span>單位 <span class="req">*</span></span><input name="dept" required></label>
+        <label><span>姓名 <span class="req">*</span></span><input name="name" autocomplete="name" required></label>
+        <label><span>職稱 <span class="req">*</span></span><input name="title" autocomplete="organization-title" required></label>
+        <label style="grid-column: 1 / -1"><span>e-mail <span class="req">*</span></span><input name="email" type="email" autocomplete="email" required></label>
       </div>
     </section>
 
@@ -219,9 +219,12 @@ async function showResult() {
     $('#msg').textContent = `🎉 恭喜 ${r.info.name}，通過課後測驗！`;
     $('#detail').textContent = `答對 ${n} / ${QUESTIONS.length} 題。請下載結業證書留存（PDF 第 2 頁起為題目與解答）。`;
     $('#passBar').style.display = 'flex'; $('#failBar').style.display = 'none';
+    const base = $('#detail').textContent;
+    $('#detail').textContent = base + '（證書產生中…）';
     try {
       await fontsReady();
       r.certCanvas = await drawCertificate(r);
+      $('#detail').textContent = base;
       $('#certPreview').src = r.certCanvas.toDataURL('image/jpeg', 0.9);
       $('#certPreview').style.display = 'block';
     } catch (err) {
@@ -244,8 +247,20 @@ $('#retry').addEventListener('click', () => {
 });
 
 // ───────────── 證書與解答繪製 ─────────────
-const F = (px, w) => `${w === 900 ? '900 ' : ''}${px}px ${w === 900 ? 'NotoTC900' : 'Huninn'}, sans-serif`;
-async function fontsReady() { await Promise.all([document.fonts.load(F(40)), document.fonts.load(F(40, 900))]); }
+// 證書會出現使用者輸入的任意字（如姓名），故繪製時使用完整字型；
+// 頁面本身只載入精簡字型，完整字型於頁面顯示後在背景下載，不影響開啟速度。
+const FULL_FONTS = [
+  new FontFace('HuninnFull', "url('assets/fonts/Huninn.ttf')"),
+  new FontFace('NotoTC900Full', "url('assets/fonts/NotoSansTC-900.ttf')", { weight: '900' }),
+];
+let fullFontsPromise = null;
+function loadFullFonts() {
+  if (!fullFontsPromise) fullFontsPromise = Promise.all(FULL_FONTS.map(f => f.load().then(ff => document.fonts.add(ff)).catch(() => {})));
+  return fullFontsPromise;
+}
+const F = (px, w) => `${w === 900 ? '900 ' : ''}${px}px ${w === 900 ? 'NotoTC900Full, NotoTC900' : 'HuninnFull, Huninn'}, sans-serif`;
+async function fontsReady() { await loadFullFonts(); await Promise.all([document.fonts.load('40px Huninn'), document.fonts.load('900 40px NotoTC900')]); }
+addEventListener('load', () => setTimeout(loadFullFonts, 1500));
 function loadImg(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
 const fmtDate = d => `${d.getFullYear() - 1911} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日`;
 const fmtDateAD = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;

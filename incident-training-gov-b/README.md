@@ -7,6 +7,7 @@
 ## 成品
 
 - `資安事件通報與應變_教育訓練動畫_公務機關B級.mp4`：成品影片
+- `web_720p.mp4`：網頁播放用 720p 版；`poster.jpg`：影片封面
 - `player.html`：互動播放器；`quiz.html`：課後測驗與結業證書（欄位為「機關名稱」）
 - 入口頁：儲存庫根目錄 `index_g_b.html`
 
@@ -29,6 +30,7 @@
 
 ```bash
 python3 ../incident-training-video/build_audio.py .            # 配音、時間軸、音軌
+python3 ../incident-training-video/make_fonts.py                # 文字有變更時重新產生精簡字型
 cd ../incident-training-video
 COURSE_DIR=../incident-training-gov-b OUT_NAME=master_raw.mp4 node render.js video
 COURSE_DIR=../incident-training-gov-b node render.js stills 10 60   # 截圖檢查

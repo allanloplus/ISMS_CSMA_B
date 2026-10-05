@@ -6,7 +6,7 @@
 <title>資安事件通報與應變｜公務機關 B 級</title>
 <meta name="description" content="公務機關 資安事件通報與應變 教育訓練動畫">
 <style>
-@font-face { font-family: 'Huninn'; src: url('incident-training-video/assets/fonts/Huninn.ttf') format('truetype'); }
+@font-face { font-family: 'Huninn'; src: url('incident-training-video/assets/fonts/Huninn-sub.woff2') format('woff2'); font-display: swap; }
 :root {
   --bg: #f3f8ff; --card: #ffffff; --ink: #1d2b53; --muted: #5d6475; --line: #e3eaf7;
   --allan: #2f7de1; --arale: #ff5f9e; --orange: #ff9a1f;
@@ -35,6 +35,10 @@ ol { padding-left: 1.4em; }
 li { margin: 2px 0; }
 .back { margin-bottom: 12px; font-size: 15px; }
 .back a { color: var(--allan); text-decoration: none; }
+.quality { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; font-size: 14px; color: var(--muted); }
+.quality button { font: inherit; font-size: 14px; color: var(--allan); background: transparent; border: 2px solid var(--allan); border-radius: 16px; padding: 3px 12px; cursor: pointer; }
+.quality button.on { color: #fff; background: var(--allan); }
+video { aspect-ratio: 16 / 9; }
 .note { font-size: 14px; color: var(--muted); margin-top: 10px; }
 </style>
 </head>
@@ -51,12 +55,16 @@ li { margin: 2px 0; }
   </header>
 
   <section class="card">
-    <video id="v" controls preload="metadata" src="incident-training-gov-b/%E8%B3%87%E5%AE%89%E4%BA%8B%E4%BB%B6%E9%80%9A%E5%A0%B1%E8%88%87%E6%87%89%E8%AE%8A_%E6%95%99%E8%82%B2%E8%A8%93%E7%B7%B4%E5%8B%95%E7%95%AB_%E5%85%AC%E5%8B%99%E6%A9%9F%E9%97%9CB%E7%B4%9A.mp4"></video>
+    <video id="v" controls playsinline preload="none" poster="incident-training-gov-b/poster.jpg" src="incident-training-gov-b/web_720p.mp4" data-hd="incident-training-gov-b/%E8%B3%87%E5%AE%89%E4%BA%8B%E4%BB%B6%E9%80%9A%E5%A0%B1%E8%88%87%E6%87%89%E8%AE%8A_%E6%95%99%E8%82%B2%E8%A8%93%E7%B7%B4%E5%8B%95%E7%95%AB_%E5%85%AC%E5%8B%99%E6%A9%9F%E9%97%9CB%E7%B4%9A.mp4" data-web="incident-training-gov-b/web_720p.mp4"></video>
+    <div class="quality" role="group" aria-label="畫質">畫質：
+      <button type="button" data-q="web" class="on">標準 720p（建議，載入快）</button>
+      <button type="button" data-q="hd">高畫質 1080p</button>
+    </div>
     <div class="missing" id="missing">影片檔尚未就緒，請改用下方「互動動畫播放器」觀看。</div>
     <div class="btns">
       <a class="btn" href="incident-training-gov-b/player.html">▶ 互動動畫播放器</a>
       <a class="btn quiz" href="incident-training-gov-b/quiz.html">📝 課後測驗（取得結業證書）</a>
-      <a class="btn alt" href="incident-training-gov-b/%E8%B3%87%E5%AE%89%E4%BA%8B%E4%BB%B6%E9%80%9A%E5%A0%B1%E8%88%87%E6%87%89%E8%AE%8A_%E6%95%99%E8%82%B2%E8%A8%93%E7%B7%B4%E5%8B%95%E7%95%AB_%E5%85%AC%E5%8B%99%E6%A9%9F%E9%97%9CB%E7%B4%9A.mp4" download>⬇ 下載 MP4</a>
+      <a class="btn alt" href="incident-training-gov-b/%E8%B3%87%E5%AE%89%E4%BA%8B%E4%BB%B6%E9%80%9A%E5%A0%B1%E8%88%87%E6%87%89%E8%AE%8A_%E6%95%99%E8%82%B2%E8%A8%93%E7%B7%B4%E5%8B%95%E7%95%AB_%E5%85%AC%E5%8B%99%E6%A9%9F%E9%97%9CB%E7%B4%9A.mp4" download>⬇ 下載 MP4（1080p）</a>
     </div>
   </section>
 
@@ -78,10 +86,24 @@ li { margin: 2px 0; }
   </section>
 </main>
 <script>
-document.getElementById('v').addEventListener('error', () => {
-  document.getElementById('v').style.display = 'none';
+// 影片：封面圖立即顯示、按播放才開始下載；預設 720p，可切換 1080p（保留目前播放位置）
+const v = document.getElementById('v');
+let triedHd = false;
+v.addEventListener('error', () => {
+  if (!triedHd && v.currentSrc.indexOf('web_720p') >= 0) { triedHd = true; switchQ('hd'); return; }   // 720p 不存在時改用 1080p
+  v.style.display = 'none';
   document.getElementById('missing').style.display = 'block';
 });
+function switchQ(q) {
+  const t = v.currentTime, playing = !v.paused;
+  v.src = q === 'hd' ? v.dataset.hd : v.dataset.web;
+  if (t > 0 || playing) {
+    v.addEventListener('loadedmetadata', () => { v.currentTime = t; if (playing) v.play().catch(() => {}); }, { once: true });
+    v.load();
+  }
+  document.querySelectorAll('.quality button').forEach(b => b.classList.toggle('on', b.dataset.q === q));
+}
+document.querySelectorAll('.quality button').forEach(b => b.addEventListener('click', () => switchQ(b.dataset.q)));
 </script>
 </body>
 </html>

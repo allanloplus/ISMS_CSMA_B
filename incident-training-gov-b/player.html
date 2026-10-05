@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>資安事件通報與應變（公務機關）</title>
 <style>
-@font-face { font-family: 'Huninn'; src: url('../incident-training-video/assets/fonts/Huninn.ttf') format('truetype'); }
-@font-face { font-family: 'NotoTC900'; src: url('../incident-training-video/assets/fonts/NotoSansTC-900.ttf') format('truetype'); font-weight: 900; }
+@font-face { font-family: 'Huninn'; src: url('../incident-training-video/assets/fonts/Huninn-sub.woff2') format('woff2'); font-display: swap; }
+@font-face { font-family: 'NotoTC900'; src: url('../incident-training-video/assets/fonts/NotoSansTC-900-sub.woff2') format('woff2'); font-weight: 900; font-display: swap; }
 :root {
   --navy: #1d2b53; --ink: #2b2f3a; --muted: #5d6475;
   --allan: #2f7de1; --arale: #ff5f9e; --orange: #ff9a1f; --yellow: #ffd23f;
@@ -170,13 +170,23 @@ body { font-family: 'Huninn', 'Noto Color Emoji', sans-serif; color: var(--ink);
 #ui { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 10px; align-items: center; padding: 10px 14px; background: rgba(16,19,28,.85); color: #fff; font: 14px sans-serif; z-index: 10; }
 #ui button { font-size: 15px; padding: 6px 14px; border-radius: 8px; border: 0; background: var(--orange); color: #fff; cursor: pointer; }
 #ui input { flex: 1; }
-body.render #ui { display: none; }
+body.render #ui, body.render #bigplay, body.render #buffering { display: none !important; }
+/* 大型播放鍵：開頁即可點，不必等任何素材 */
+#bigplay { position: absolute; left: 50%; top: 63%; transform: translate(-50%, -50%); z-index: 20; display: flex; align-items: center; gap: 14px;
+  font: 34px 'Huninn', system-ui, sans-serif; color: #fff; background: var(--orange); border: 0; border-radius: 60px; padding: 18px 42px 18px 34px; cursor: pointer;
+  box-shadow: 0 8px 0 #d9780a, 0 16px 40px rgba(0,0,0,.25); }
+#bigplay:hover { filter: brightness(1.05); }
+#bigplay .tri { width: 0; height: 0; border-left: 30px solid #fff; border-top: 19px solid transparent; border-bottom: 19px solid transparent; }
+#bigplay[hidden] { display: none; }
+#buffering { position: absolute; right: 24px; top: 24px; z-index: 20; font: 18px 'Huninn', system-ui, sans-serif; color: var(--navy); background: rgba(255,255,255,.92); padding: 6px 14px; border-radius: 16px; display: none; }
 </style>
 </head>
 <body>
 <div id="stage">
   <div id="bg"><div id="grid"></div></div>
   <div id="progress"></div>
+  <button id="bigplay" type="button"><span class="tri"></span>開始播放</button>
+  <div id="buffering">⏳ 載入中…</div>
   <div id="header"><div id="chapter"></div><div id="title"></div></div>
   <div id="content"></div>
   <div id="sub"><div id="subbox"><div id="subname"></div><div id="subtext"></div></div></div>
@@ -184,8 +194,7 @@ body.render #ui { display: none; }
   <div class="host" id="allan"><div class="disc"></div><div class="ring"></div><img class="body" src="../incident-training-video/assets/allan_half_outline.png" alt=""><div class="name">講師 Allan</div><div class="emo"></div><div class="waves emoji">💬</div></div>
 </div>
 <div id="ui"><button id="play">▶ 播放</button><input id="seek" type="range" min="0" max="1000" value="0"><span id="clock">0:00</span></div>
-<audio id="audio" src="build/narration.m4a" preload="auto"></audio>
-<script src="scenes.js"></script>
+<audio id="audio" src="build/narration.m4a" preload="metadata"></audio>
 <script>
 'use strict';
 let TL = null;
@@ -604,12 +613,16 @@ function renderAt(t) {
 }
 
 // ---------- boot ----------
+const COVER_T = 2.6;   // 尚未播放時顯示的封面畫面（標題動畫已完成）
 async function boot() {
   const r = await fetch('build/timeline.json'); TL = await r.json();
-  await document.fonts.ready;
-  for (let i = 0; i < TL.scenes.length; i++) getScene(i);
-  await Promise.all([...document.images].map(im => im.complete ? 0 : new Promise(res => im.onload = im.onerror = res)));
-  renderAt(0);
+  if (RENDER) {
+    // 錄製影片時才需要等字型與圖片全部就緒
+    await document.fonts.ready;
+    for (let i = 0; i < TL.scenes.length; i++) getScene(i);
+    await Promise.all([...document.images].map(im => im.complete ? 0 : new Promise(res => im.onload = im.onerror = res)));
+  }
+  renderAt(RENDER ? 0 : COVER_T);   // 互動模式：立即畫出完整封面，字型與圖片載入後自動補上
   window.__ready = true;
 }
 window.renderAt = renderAt;
@@ -624,9 +637,17 @@ function fit() {
 addEventListener('resize', fit); fit();
 boot().then(() => {
   if (RENDER) return;
-  const au = $('#audio'), seek = $('#seek');
+  const au = $('#audio'), seek = $('#seek'), big = $('#bigplay'), buf = $('#buffering');
   const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
-  $('#play').onclick = () => { if (au.paused) { au.play(); $('#play').textContent = '❚❚ 暫停'; } else { au.pause(); $('#play').textContent = '▶ 播放'; } };
+  const sync = () => { $('#play').textContent = au.paused ? '▶ 播放' : '❚❚ 暫停'; big.hidden = !au.paused || (au.currentTime > 0 && !au.ended); };
+  const toggle = () => { if (au.paused) au.play().catch(() => {}); else au.pause(); };
+  window.addEventListener('resize', () => { if (au.paused && au.currentTime === 0) renderAt(COVER_T); });
+  $('#play').onclick = toggle; big.onclick = toggle;
+  $('#stage').addEventListener('click', e => { if (e.target !== big && !big.contains(e.target)) toggle(); });
+  ['play', 'pause', 'ended'].forEach(ev => au.addEventListener(ev, sync));
+  au.addEventListener('waiting', () => { buf.style.display = 'block'; });
+  ['playing', 'pause', 'canplay'].forEach(ev => au.addEventListener(ev, () => { buf.style.display = 'none'; }));
+  addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); toggle(); } });
   seek.oninput = () => { au.currentTime = seek.value / 1000 * TL.duration; renderAt(au.currentTime); };
   (function loop() { if (!au.paused) { renderAt(au.currentTime); seek.value = au.currentTime / TL.duration * 1000; } $('#clock').textContent = fmt(au.currentTime) + ' / ' + fmt(TL.duration); requestAnimationFrame(loop); })();
 });
