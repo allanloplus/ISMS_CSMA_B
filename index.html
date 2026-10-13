@@ -20,7 +20,7 @@
 body { background: var(--bg); color: var(--ink); font-family: 'Huninn', system-ui, sans-serif; line-height: 1.6; }
 main { max-width: 1040px; margin: 0 auto; padding: 36px 16px 56px; }
 .hero { display: flex; align-items: flex-end; gap: 18px; }
-.hero .arale { width: 96px; height: 96px; border-radius: 22px; border: 5px solid var(--arale); background: #fff; object-fit: cover; object-position: 40% 30%; flex: none; }
+.hero .arale { height: 150px; flex: none; filter: drop-shadow(0 6px 10px rgba(29,43,83,.2)); }
 .hero .allan { height: 150px; flex: none; filter: drop-shadow(0 6px 10px rgba(29,43,83,.2)); }
 .hero .txt { flex: 1; min-width: 0; padding-bottom: 8px; }
 .kicker { display: inline-block; font-size: 14px; color: #fff; background: var(--ink); padding: 3px 14px; border-radius: 20px; }
@@ -42,14 +42,14 @@ h1 { font-family: 'NotoTC900', 'Huninn', sans-serif; font-weight: 900; font-size
 @media (max-width: 720px) {
   .grid { grid-template-columns: 1fr; }
   .hero .allan { display: none; }
-  .hero .arale { width: 72px; height: 72px; }
+  .hero .arale { height: 110px; }
 }
 </style>
 </head>
 <body>
 <main>
   <section class="hero">
-    <img class="arale" src="incident-training-video/assets/arale.png" alt="助教 阿拉蕾">
+    <img class="arale" src="incident-training-video/assets/arale_half.png" alt="助教 阿拉蕾">
     <div class="txt">
       <span class="kicker">資通安全管理法教育訓練</span>
       <h1>資通安全事件通報應變</h1>
